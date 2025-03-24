@@ -2,8 +2,12 @@ import { zodResolver } from '@hookform/resolvers/zod'
 import { useMutation } from '@tanstack/react-query'
 import { AxiosError } from 'axios'
 import { setCookie } from 'nookies'
+import { parseCookies } from 'nookies'
+import { useContext } from 'react'
+import { } from 'react-auth-kit'
 import { Helmet } from 'react-helmet-async'
 import { useForm } from 'react-hook-form'
+import { useNavigate } from 'react-router-dom'
 import { toast } from 'sonner'
 import * as z from 'zod'
 
@@ -11,11 +15,16 @@ import { AuthenticateFn } from '@/api/authenticate'
 import { Button } from '@/components/ui/button'
 import { Input } from '@/components/ui/input'
 
+import { contextApp } from '../app/context/context-main'
+
 export function SignIn() {
+  const { setIsAuthenticated } = useContext(contextApp)
   const formSignUpSchema = z.object({
     email: z.string().email(),
     password: z.string().min(8),
   })
+
+  const navigate = useNavigate()
 
   type typeFormSignUpSchema = z.infer<typeof formSignUpSchema>
 
@@ -34,8 +43,16 @@ export function SignIn() {
         email,
         password,
       })
+      console.log(token)
       setCookie(undefined, 'app.schedule.lab', token)
-      toast.success('Usuário autenticado com sucesso!')
+
+      toast.success('Usuário autenticado com sucesso')
+
+      const cookie = parseCookies()
+      if (cookie) {
+        setIsAuthenticated(true)
+      }
+      navigate('/admin', { replace: true })
     } catch (e) {
       if (e instanceof AxiosError) {
         if (e.response !== undefined) {
@@ -84,7 +101,7 @@ export function SignIn() {
               >Senha
               </label>
               <Input
-                type="text" className="border p-1 rounded-md outline-none"
+                type="password" className="border p-1 rounded-md outline-none"
                 {...register('password')}
               />
             </div>

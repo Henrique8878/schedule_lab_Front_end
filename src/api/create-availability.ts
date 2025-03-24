@@ -9,7 +9,6 @@ interface CreateAvailabilityParams {
 export async function CreateAvailabilityFn(
   { laboratoryId, date, beginHour, endHour }
   :CreateAvailabilityParams) {
-  console.log(laboratoryId, date, beginHour, endHour)
   await api.post(`/availability/${laboratoryId}`, {
     date,
     beginHour,

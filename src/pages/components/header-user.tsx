@@ -1,11 +1,12 @@
-import { Calendar, Home, Pen, User } from 'lucide-react'
+import { Calendar } from 'lucide-react'
 import { FlaskConical } from 'lucide-react'
 
 import { Separator } from '@/components/ui/separator'
 
 import { AccountMenu } from '../app/components/account-menu'
 import { NavLink } from './nav-link'
-export function Header() {
+
+export function HeaderUser() {
   return (
     <>
       <nav
@@ -13,19 +14,8 @@ export function Header() {
       >
         <FlaskConical />
         <Separator className="h-6" orientation="vertical" />
-        <NavLink to="/admin">
-          <Home />
-          <span>Início</span>
-        </NavLink>
-        <NavLink to="/admin/register-user">
-          <User />
-          <span>Cadastrar Admin/Usuário</span>
-        </NavLink>
-        <NavLink to="/admin/register-lab">
-          <Pen />
-          <span>Cadastrar Laboratório</span>
-        </NavLink>
-        <NavLink to="/admin/scheduling">
+
+        <NavLink to="/user">
           <Calendar />
           <span>Agendamento</span>
         </NavLink>

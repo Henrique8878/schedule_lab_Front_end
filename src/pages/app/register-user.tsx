@@ -9,13 +9,6 @@ import * as z from 'zod'
 import { RegisterUserFn } from '@/api/register-user'
 import { Button } from '@/components/ui/button'
 import { Input } from '@/components/ui/input'
-import {
-  Select,
-  SelectContent,
-  SelectItem,
-  SelectTrigger,
-  SelectValue,
-} from '@/components/ui/select'
 
 export function RegisterUser() {
   const registerUserSchema = z.object({
@@ -58,7 +51,7 @@ export function RegisterUser() {
     <>
       <Helmet title="Registrar-adm/user" />
       <div className="flex justify-center items-center h-screen">
-        <div className="w-[23rem] space-y-4">
+        <div className="w-[28rem] space-y-4">
           <section className="flex flex-col gap-2">
             <h1 className="text-3xl text-center font-medium">
               Registrar
@@ -136,15 +129,12 @@ export function RegisterUser() {
               </label>
               <Controller
                 name="category" control={control} render={({ field }) => (
-                  <Select onValueChange={field.onChange}>
-                    <SelectTrigger className="w-full">
-                      <SelectValue placeholder="Admnistrador ou Usuário" />
-                    </SelectTrigger>
-                    <SelectContent>
-                      <SelectItem value="admin">Admnistrador</SelectItem>
-                      <SelectItem value="user">Usuário</SelectItem>
-                    </SelectContent>
-                  </Select>
+
+                  <select className="flex h-10 w-full items-center justify-between rounded-md border border-input bg-background px-3 py-2 text-sm ring-offset-background placeholder:text-muted-foreground focus:outline-none focus:ring-2 focus:ring-ring focus:ring-offset-2 disabled:cursor-not-allowed disabled:opacity-50 [&>span]:line-clamp-1" {...field}>
+                    <option value="">Admnistrador ou Usuário</option>
+                    <option value="admin">Admnistrador</option>
+                    <option value="user">Usuário</option>
+                  </select>
                 )}
               />
             </div>

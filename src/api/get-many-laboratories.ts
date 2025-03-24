@@ -1,6 +1,6 @@
 import { api } from '@/lib/axios'
 
-interface GetManyLaboratoriesReturn {
+export interface GetManyLaboratoriesReturn {
   id: string
   name: string
   capacity: number

@@ -13,7 +13,7 @@ import { Button } from '@/components/ui/button'
 import { Input } from '@/components/ui/input'
 import { Textarea } from '@/components/ui/textarea'
 
-interface ReturningFunctionCaptureUser {
+export interface ReturningFunctionCaptureUser {
   iat: number,
   sub: string
 }
@@ -50,7 +50,7 @@ export function RegisterLab() {
     return payload
   }
 
-  console.log(captureIdUser().sub)
+  console.log(captureIdUser)
   async function handleRegister({ name, localization, capacity, description }:typeRegisterLaboratorySchema) {
     try {
       await registerLabFn({
@@ -75,7 +75,7 @@ export function RegisterLab() {
     <>
       <Helmet title="Registrar-adm/user" />
       <div className="flex justify-center items-center h-screen">
-        <div className="w-[23rem] space-y-4">
+        <div className="w-[28rem] space-y-4">
           <section className="flex flex-col gap-2">
             <h1 className="text-3xl text-center font-medium">
               Registrar laboratório
