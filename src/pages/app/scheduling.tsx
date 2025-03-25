@@ -3,8 +3,9 @@ import 'react-datepicker/dist/react-datepicker.css'
 import { zodResolver } from '@hookform/resolvers/zod'
 import { useQuery } from '@tanstack/react-query'
 import { useMutation } from '@tanstack/react-query'
+import { setHours, setMinutes } from 'date-fns'
 import dayjs from 'dayjs'
-import { useEffect, useState } from 'react'
+import { useState } from 'react'
 import DatePicker from 'react-datepicker'
 import { Helmet } from 'react-helmet-async'
 import { Controller, useForm } from 'react-hook-form'
@@ -16,10 +17,10 @@ import { GetManyLaboratoriesFn } from '@/api/get-many-laboratories'
 import { Button } from '@/components/ui/button'
 
 export function Scheduling() {
-  const [startDate, setStartDate] = useState(new Date())
-  const [beginHourValue, setBeginHourValue] = useState(new Date())
-  const [endHourValue, setEndHourValue] = useState(new Date())
-  const [currentDateCalendar, setCurrentDateCalendar] = useState<Date[] | undefined>([])
+  const [startDate, setStartDate] = useState(setHours(setMinutes(new Date(), 0), 18))
+  const [beginHourValue, setBeginHourValue] = useState(setHours(setMinutes(new Date(), 0), 18))
+  const [endHourValue, setEndHourValue] = useState(setHours(setMinutes(new Date(), 0), 18))
+  const [currentLaboratoryId, setCurrentLaboratoryId] = useState<string>('')
   const registerAvailabilitySchema = z.object({
     laboratoryId: z.string(),
   })
@@ -39,17 +40,6 @@ export function Scheduling() {
       queryFn: GetManyLaboratoriesFn,
     })
 
-    useEffect(() => {
-      const newArray = getManyLaboratoriesFm?.map((lab) => {
-        const arrayReservation = lab.reservations.map((reserv) => {
-          return new Date(reserv.beginHour)
-        })
-        return arrayReservation
-      })
-      setCurrentDateCalendar(newArray?.flat())
-    }, [getManyLaboratoriesFm])
-
-    console.log(currentDateCalendar)
     const { mutateAsync: createAvailabilityFn } = useMutation({
       mutationFn: CreateAvailabilityFn,
     })
@@ -69,7 +59,7 @@ export function Scheduling() {
         }
 
         if (!isBeforeBeginHourEndHour) {
-          throw new Error('O horário final não pode ser anterior ao horário inicial')
+          throw new Error('O horário final não pode ser anterior ou igual ao horário inicial')
         }
 
         if (!isSameDayEndHour || !isSameDayStartHour) {
@@ -83,26 +73,21 @@ export function Scheduling() {
           endHour: endHourValue.toISOString(),
         })
         toast.success('Laboratorio reservado !')
+        filterPassedTime(new Date())
       } catch (e) {
         toast.error(`Erro na reserva do laboratório: ${e} `)
       }
     }
 
-    // const filterDate = (date:Date) => {
-    //   const specificdates = currentDateCalendar?.map((date) => {
-    //     return date.toISOString().split('T')[0]
-    //   })
+    const isWeekday = (date:Date) => {
+      const day = dayjs(date).day()
+      return day !== 0 && day !== 6
+    }
 
-    //   const retornoArray = specificdates && specificdates.some(d =>
-    //     new Date(d).getFullYear() === date.getFullYear() &&
-    //     new Date(d).getMonth() === date.getMonth() &&
-    //     new Date(d).getDate() === date.getDate(),
-    //   )
-
-    //   if (retornoArray !== undefined) {
-    //     return retornoArray
-    //   }
-    // }
+    console.log(getManyLaboratoriesFm)
+    const filterPassedTime = (time) => {
+      return new Date(time) < setHours(setMinutes(new Date(), 0), 22) && new Date(time) > setHours(setMinutes(new Date(), 0), 17)
+    }
 
     return (
       <>
@@ -132,6 +117,7 @@ export function Scheduling() {
                   name="laboratoryId" control={control} render={({ field }) => (
 
                     <select className="flex h-10 w-full items-center justify-between rounded-md border border-input bg-background px-3 py-2 text-sm ring-offset-background placeholder:text-muted-foreground focus:outline-none focus:ring-2 focus:ring-ring focus:ring-offset-2 disabled:cursor-not-allowed disabled:opacity-50 [&>span]:line-clamp-1" {...field}>
+                      <option value="">Escolha um laboratório</option>
                       {getManyLaboratoriesFm?.map((laboratory) => (
                         <option key={laboratory.id} value={laboratory.id}>{laboratory.name}</option>
                       ))}
@@ -156,7 +142,16 @@ export function Scheduling() {
                       const newDate = date?.toISOString().split('T')[0]
                       console.log(newDate)
                     }}
-
+                    minDate={new Date()}
+                    holidays={[
+                      { date: '2025-04-21', holidayName: 'Tiradentes' },
+                      { date: '2025-05-01', holidayName: 'Dia do trabalho' },
+                      { date: '2025-06-19', holidayName: 'Corpus Christi' },
+                      { date: '2025-09-07', holidayName: 'Independência do Brasil' },
+                      { date: '2025-10-12', holidayName: 'Nossa Senhora Aparecida' },
+                      { date: '2025-11-02', holidayName: 'Finados' },
+                    ]}
+                    filterDate={isWeekday}
                   />
                 </div>
                 <div className="flex flex-col gap-2">
@@ -167,12 +162,23 @@ export function Scheduling() {
                     Início
                   </label>
                   <DatePicker
-                    selected={beginHourValue} showTimeSelect dateFormat="Pp" className="flex h-10 w-full items-center justify-between rounded-md border border-input bg-background px-3 py-2 text-sm ring-offset-background placeholder:text-muted-foreground focus:outline-none focus:ring-2 focus:ring-ring focus:ring-offset-2 disabled:cursor-not-allowed disabled:opacity-50 [&>span]:line-clamp-1" onChange={(date) => {
+                    selected={beginHourValue} showTimeSelect dateFormat="Pp" timeIntervals={60} className="flex h-10 w-full items-center justify-between rounded-md border border-input bg-background px-3 py-2 text-sm ring-offset-background placeholder:text-muted-foreground focus:outline-none focus:ring-2 focus:ring-ring focus:ring-offset-2 disabled:cursor-not-allowed disabled:opacity-50 [&>span]:line-clamp-1" onChange={(date) => {
                       if (date) {
                         setBeginHourValue(date)
+                        setCurrentDay(date)
                       }
                     }}
-                    excludeTimes={currentDateCalendar}
+                    minDate={new Date()}
+                    holidays={[
+                      { date: '2025-04-21', holidayName: 'Tiradentes' },
+                      { date: '2025-05-01', holidayName: 'Dia do trabalho' },
+                      { date: '2025-06-19', holidayName: 'Corpus Christi' },
+                      { date: '2025-09-07', holidayName: 'Independência do Brasil' },
+                      { date: '2025-10-12', holidayName: 'Nossa Senhora Aparecida' },
+                      { date: '2025-11-02', holidayName: 'Finados' },
+                    ]}
+                    filterTime={filterPassedTime}
+                    filterDate={isWeekday}
                   />
                 </div>
                 <div className="flex flex-col gap-2">
@@ -183,11 +189,23 @@ export function Scheduling() {
                     Até
                   </label>
                   <DatePicker
-                    selected={endHourValue} showTimeSelect dateFormat="Pp" className="flex h-10 w-full items-center justify-between rounded-md border border-input bg-background px-3 py-2 text-sm ring-offset-background placeholder:text-muted-foreground focus:outline-none focus:ring-2 focus:ring-ring focus:ring-offset-2 disabled:cursor-not-allowed disabled:opacity-50 [&>span]:line-clamp-1" onChange={(date) => {
+                    selected={endHourValue} showTimeSelect dateFormat="Pp" timeIntervals={60} className="flex h-10 w-full items-center justify-between rounded-md border border-input bg-background px-3 py-2 text-sm ring-offset-background placeholder:text-muted-foreground focus:outline-none focus:ring-2 focus:ring-ring focus:ring-offset-2 disabled:cursor-not-allowed disabled:opacity-50 [&>span]:line-clamp-1" onChange={(date) => {
                       if (date) {
                         setEndHourValue(date)
+                        setCurrentDay(date)
                       }
                     }}
+                    minDate={new Date()}
+                    holidays={[
+                      { date: '2025-04-21', holidayName: 'Tiradentes' },
+                      { date: '2025-05-01', holidayName: 'Dia do trabalho' },
+                      { date: '2025-06-19', holidayName: 'Corpus Christi' },
+                      { date: '2025-09-07', holidayName: 'Independência do Brasil' },
+                      { date: '2025-10-12', holidayName: 'Nossa Senhora Aparecida' },
+                      { date: '2025-11-02', holidayName: 'Finados' },
+                    ]}
+                    filterTime={filterPassedTime}
+                    filterDate={isWeekday}
                   />
                 </div>
               </main>
