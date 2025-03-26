@@ -5,7 +5,7 @@ import { useQuery } from '@tanstack/react-query'
 import { useMutation } from '@tanstack/react-query'
 import { setHours, setMinutes } from 'date-fns'
 import dayjs from 'dayjs'
-import { useState } from 'react'
+import { useEffect, useState } from 'react'
 import DatePicker from 'react-datepicker'
 import { Helmet } from 'react-helmet-async'
 import { Controller, useForm } from 'react-hook-form'
@@ -21,6 +21,7 @@ export function Scheduling() {
   const [beginHourValue, setBeginHourValue] = useState(setHours(setMinutes(new Date(), 0), 18))
   const [endHourValue, setEndHourValue] = useState(setHours(setMinutes(new Date(), 0), 18))
   const [currentLaboratoryId, setCurrentLaboratoryId] = useState<string>('')
+  const [currentDay, setCurrentDay] = useState<number | undefined>(startDate.getDate())
   const registerAvailabilitySchema = z.object({
     laboratoryId: z.string(),
   })
@@ -35,7 +36,7 @@ export function Scheduling() {
     useForm<typeRegisterAvailabilitySchema>({
       resolver: zodResolver(registerAvailabilitySchema),
     })
-    const { data: getManyLaboratoriesFm } = useQuery({
+    const { data: getManyLaboratoriesFm, refetch } = useQuery({
       queryKey: ['getManyLaboratoriesKey'],
       queryFn: GetManyLaboratoriesFn,
     })
@@ -68,12 +69,12 @@ export function Scheduling() {
 
         await createAvailabilityFn({
           laboratoryId,
-          date: startDate.toISOString().split('T')[0],
-          beginHour: beginHourValue.toISOString(),
-          endHour: endHourValue.toISOString(),
+          date: dayjs(startDate.toString()).format('YYYY-MM-DD'),
+          beginHour: `${dayjs(beginHourValue.toString()).format('YYYY-MM-DDTHH:mm:ss.000')}Z`,
+          endHour: `${dayjs(endHourValue.toString()).format('YYYY-MM-DDTHH:mm:ss.000')}Z`,
         })
         toast.success('Laboratorio reservado !')
-        filterPassedTime(new Date())
+        refetch()
       } catch (e) {
         toast.error(`Erro na reserva do laboratório: ${e} `)
       }
@@ -84,9 +85,32 @@ export function Scheduling() {
       return day !== 0 && day !== 6
     }
 
-    console.log(getManyLaboratoriesFm)
     const filterPassedTime = (time) => {
-      return new Date(time) < setHours(setMinutes(new Date(), 0), 22) && new Date(time) > setHours(setMinutes(new Date(), 0), 17)
+      const Laboratory = getManyLaboratoriesFm?.find((lab) => {
+        return lab.id === currentLaboratoryId
+      })
+
+      const arrayEndHours = Laboratory?.reservations.map((lab) => {
+        return lab.endHour
+      })
+
+      const arrayEndHoursSameDay = arrayEndHours?.filter((date) => {
+        return Number(date.split('T')[0].split('-')[2]) === currentDay
+      })
+
+      const latestHour = arrayEndHoursSameDay && arrayEndHoursSameDay.reduce((latest, current) => {
+        return dayjs(latest).isAfter(current)
+          ? latest
+          : current
+      }, `${new Date().getFullYear()}-${Number(new Date().getMonth() + 1) > 9
+? ''
+: 0}${Number(new Date().getMonth()) + 1}-${new Date().getDate()}T18:00`)
+
+      console.log(latestHour)
+      const currentTime = new Date(time)
+      const currentHour = currentTime.getHours()
+
+      return currentHour >= 18 && currentHour <= 22 && currentHour >= Number(latestHour?.split('T')[1].split(':')[0])
     }
 
     return (
@@ -116,7 +140,13 @@ export function Scheduling() {
                 <Controller
                   name="laboratoryId" control={control} render={({ field }) => (
 
-                    <select className="flex h-10 w-full items-center justify-between rounded-md border border-input bg-background px-3 py-2 text-sm ring-offset-background placeholder:text-muted-foreground focus:outline-none focus:ring-2 focus:ring-ring focus:ring-offset-2 disabled:cursor-not-allowed disabled:opacity-50 [&>span]:line-clamp-1" {...field}>
+                    <select
+                      className="flex h-10 w-full items-center justify-between rounded-md border border-input bg-background px-3 py-2 text-sm ring-offset-background placeholder:text-muted-foreground focus:outline-none focus:ring-2 focus:ring-ring focus:ring-offset-2 disabled:cursor-not-allowed disabled:opacity-50 [&>span]:line-clamp-1" {...field} onChange={(e) => {
+                        const selectedId = e.target.value
+                        field.onChange(e)
+                        setCurrentLaboratoryId(selectedId)
+                      }}
+                    >
                       <option value="">Escolha um laboratório</option>
                       {getManyLaboratoriesFm?.map((laboratory) => (
                         <option key={laboratory.id} value={laboratory.id}>{laboratory.name}</option>
@@ -139,8 +169,7 @@ export function Scheduling() {
                       if (date) {
                         setStartDate(date)
                       }
-                      const newDate = date?.toISOString().split('T')[0]
-                      console.log(newDate)
+                      setCurrentDay(date?.getDate())
                     }}
                     minDate={new Date()}
                     holidays={[
@@ -165,7 +194,6 @@ export function Scheduling() {
                     selected={beginHourValue} showTimeSelect dateFormat="Pp" timeIntervals={60} className="flex h-10 w-full items-center justify-between rounded-md border border-input bg-background px-3 py-2 text-sm ring-offset-background placeholder:text-muted-foreground focus:outline-none focus:ring-2 focus:ring-ring focus:ring-offset-2 disabled:cursor-not-allowed disabled:opacity-50 [&>span]:line-clamp-1" onChange={(date) => {
                       if (date) {
                         setBeginHourValue(date)
-                        setCurrentDay(date)
                       }
                     }}
                     minDate={new Date()}
@@ -192,7 +220,6 @@ export function Scheduling() {
                     selected={endHourValue} showTimeSelect dateFormat="Pp" timeIntervals={60} className="flex h-10 w-full items-center justify-between rounded-md border border-input bg-background px-3 py-2 text-sm ring-offset-background placeholder:text-muted-foreground focus:outline-none focus:ring-2 focus:ring-ring focus:ring-offset-2 disabled:cursor-not-allowed disabled:opacity-50 [&>span]:line-clamp-1" onChange={(date) => {
                       if (date) {
                         setEndHourValue(date)
-                        setCurrentDay(date)
                       }
                     }}
                     minDate={new Date()}

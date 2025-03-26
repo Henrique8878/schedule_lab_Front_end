@@ -6,7 +6,9 @@ import { Helmet } from 'react-helmet-async'
 import { replace, useNavigate } from 'react-router-dom'
 import { Bar, BarChart, CartesianGrid, Legend, Tooltip, XAxis, YAxis } from 'recharts'
 
+import { GetManyAvailabilitiesFn } from '@/api/get-many-availabilities'
 import { GetManyLaboratoriesFn } from '@/api/get-many-laboratories'
+import { GetManyUsersFn } from '@/api/get-many-users'
 import { GetUserProfileFn } from '@/api/get-user-profile'
 import { Card, CardContent, CardFooter, CardHeader } from '@/components/ui/card'
 
@@ -18,6 +20,16 @@ export function DashBoard() {
   const { data: getManyLaboratoriesFm } = useQuery({
     queryKey: ['getManyLaboratoriesKey'],
     queryFn: GetManyLaboratoriesFn,
+  })
+
+  const { data: getManyAvailabilitiesFn } = useQuery({
+    queryKey: ['getManyAvailabilitiesKey'],
+    queryFn: GetManyAvailabilitiesFn,
+  })
+
+  const { data: getManyUsersFn } = useQuery({
+    queryKey: ['getManyUsersKey'],
+    queryFn: GetManyUsersFn,
   })
 
   function mapGetManyLaboratories() {
@@ -47,6 +59,38 @@ export function DashBoard() {
     navigate('/user', { replace: true })
   }
 
+  function calcQuantityAvailabilitiesOnMonth() {
+    const currentMonth = (Number(new Date().getMonth()) + 1) < 10
+      ? `0${Number(new Date().getMonth()) + 1}`
+      : `${Number(new Date().getMonth())}`
+
+    const manyCreated_at = getManyAvailabilitiesFn?.map((avail) => {
+      return avail.beginHour
+    })
+
+    const availabilitiesOnThisMonth = manyCreated_at?.filter((created) => {
+      return Number(created.split('T')[0].split('-')[1]) === Number(currentMonth)
+    })
+
+    return availabilitiesOnThisMonth?.length
+  }
+
+  function calcQuantityRegisterUsersOnMonth() {
+    const currentMonth = (Number(new Date().getMonth()) + 1) < 10
+      ? `0${Number(new Date().getMonth()) + 1}`
+      : `${Number(new Date().getMonth())}`
+
+    const manyCreated_at = getManyUsersFn?.map((user) => {
+      return user.created_at
+    })
+
+    const UsersOnThisMonth = manyCreated_at?.filter((created) => {
+      return Number(created.split('T')[0].split('-')[1]) === Number(currentMonth)
+    })
+
+    return UsersOnThisMonth?.length
+  }
+
   return (
     <>
       <Helmet title="Dashboard" />
@@ -58,7 +102,7 @@ export function DashBoard() {
               <span className="text-xl">Total de Reservas (mês)</span>
             </CardHeader>
             <CardContent>
-              <span className="text-3xl">35 Reservas</span>
+              <span className="text-3xl">{calcQuantityAvailabilitiesOnMonth()} Reservas</span>
             </CardContent>
             <CardFooter>
               <span><strong className="text-emerald-400">% 5 </strong>
@@ -71,7 +115,7 @@ export function DashBoard() {
               <span className="text-xl">Usuários cadastrados (mês)</span>
             </CardHeader>
             <CardContent>
-              <span className="text-3xl">15 Cadastros</span>
+              <span className="text-3xl">{calcQuantityRegisterUsersOnMonth()} Cadastros</span>
             </CardContent>
             <CardFooter>
               <span><strong className="text-red-500">% -5 </strong>
