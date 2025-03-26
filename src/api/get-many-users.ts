@@ -1,23 +1,30 @@
 import { api } from '@/lib/axios'
 
 interface getManyUsersReturn {
-  id: string
-  created_at: string
-  name: string
-  email: string
-  password_hash: string
-  category: string
-  manyLaboratory:{
+  users:{
     id: string
+    created_at: string
     name: string
-    capacity: number
-    localization: string
-    description: string
-    userId: string
-  }[]
+    email: string
+    password_hash: string
+    category: string
+    manyLaboratory:{
+      id: string
+      name: string
+      capacity: number
+      localization: string
+      description: string
+      userId: string
+    }[]
+  }[],
+  totalCount: number
 }
 
-export async function GetManyUsersFn() {
-  const response = await api.get<getManyUsersReturn[]>('/many-users')
+interface getManyUsersParams {
+  page: number
+}
+
+export async function GetManyUsersFn({ page }:getManyUsersParams) {
+  const response = await api.get<getManyUsersReturn>('/many-users')
   return response.data
 }

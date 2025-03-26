@@ -3,7 +3,7 @@ import { jwtDecode } from 'jwt-decode'
 import { parseCookies } from 'nookies'
 import { useContext } from 'react'
 import { Helmet } from 'react-helmet-async'
-import { replace, useNavigate } from 'react-router-dom'
+import { useNavigate } from 'react-router-dom'
 import { Bar, BarChart, CartesianGrid, Legend, Tooltip, XAxis, YAxis } from 'recharts'
 
 import { GetManyAvailabilitiesFn } from '@/api/get-many-availabilities'
@@ -29,7 +29,7 @@ export function DashBoard() {
 
   const { data: getManyUsersFn } = useQuery({
     queryKey: ['getManyUsersKey'],
-    queryFn: GetManyUsersFn,
+    queryFn: () => GetManyUsersFn({ page: 1 }),
   })
 
   function mapGetManyLaboratories() {
@@ -80,7 +80,7 @@ export function DashBoard() {
       ? `0${Number(new Date().getMonth()) + 1}`
       : `${Number(new Date().getMonth())}`
 
-    const manyCreated_at = getManyUsersFn?.map((user) => {
+    const manyCreated_at = getManyUsersFn?.users.map((user) => {
       return user.created_at
     })
 

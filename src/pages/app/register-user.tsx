@@ -2,7 +2,10 @@ import { zodResolver } from '@hookform/resolvers/zod'
 import { useMutation } from '@tanstack/react-query'
 import { useQuery } from '@tanstack/react-query'
 import { AxiosError } from 'axios'
+import { formatDistanceToNow } from 'date-fns'
+import { ptBR } from 'date-fns/locale'
 import { Plus, User, XIcon } from 'lucide-react'
+import { ChevronLeft, ChevronRight, ChevronsLeft, ChevronsRight } from 'lucide-react'
 import { useState } from 'react'
 import { Helmet } from 'react-helmet-async'
 import { Controller, useForm } from 'react-hook-form'
@@ -65,7 +68,7 @@ export function RegisterUser() {
 
   const { data: getManyUsersFn } = useQuery({
     queryKey: ['getManyUsersKey'],
-    queryFn: GetManyUsersFn,
+    queryFn: () => GetManyUsersFn({ page: 1 }),
   })
 
   return (
@@ -208,31 +211,50 @@ export function RegisterUser() {
                 <User size={30} />
                 <Plus size={30} />
               </div>
-              <Table>
-                <TableCaption>A list of your recent invoices.</TableCaption>
-                <TableHeader>
-                  <TableRow>
-                    <TableHead className="w-[100px]">Nome</TableHead>
-                    <TableHead>E-mail</TableHead>
-                    <TableHead>Criado há</TableHead>
-                    <TableHead className="text-right">Categoria</TableHead>
-                  </TableRow>
-                </TableHeader>
-                <TableBody>
-                  {getManyUsersFn?.map((user) => (
-                    <TableRow key={user.id}>
-                      <TableCell className="font-medium">{user.name}</TableCell>
-                      <TableCell>{user.email}</TableCell>
-                      <TableCell>{user.created_at}</TableCell>
-                      <TableCell className="text-right">{user.category === 'admin'
-                        ? 'Admnistrador'
-                        : 'Usuário'}
-                      </TableCell>
-
+              <section className="flex flex-col border border-muted">
+                <Table>
+                  <TableCaption>A list of your recent invoices.</TableCaption>
+                  <TableHeader>
+                    <TableRow>
+                      <TableHead className="w-[12rem]">Nome</TableHead>
+                      <TableHead className="w-[25rem]">E-mail</TableHead>
+                      <TableHead className="w-[15rem]">Criado há</TableHead>
+                      <TableHead className="w-[15rem]">Categoria</TableHead>
                     </TableRow>
-                  ))}
-                </TableBody>
-              </Table>
+                  </TableHeader>
+                  <TableBody>
+                    {getManyUsersFn?.users.map((user) => (
+                      <TableRow key={user.id}>
+                        <TableCell className="font-medium p-4">{user.name}</TableCell>
+                        <TableCell>{user.email}</TableCell>
+                        <TableCell>{formatDistanceToNow(user.created_at, { locale: ptBR, addSuffix: true })}</TableCell>
+                        <TableCell>{user.category === 'admin'
+                          ? 'Admnistrador'
+                          : 'Usuário'}
+                        </TableCell>
+                      </TableRow>
+                    ))}
+                  </TableBody>
+                </Table>
+
+              </section>
+              <div className="flex justify-between w-full">
+                <span>Total de {getManyUsersFn?.totalCount} item(s)</span>
+                <div>
+                  <Button variant="outline" className="cursor-pointer">
+                    <ChevronsLeft />
+                  </Button>
+                  <Button variant="outline" className="cursor-pointer">
+                    <ChevronLeft />
+                  </Button>
+                  <Button variant="outline" className="cursor-pointer">
+                    <ChevronRight />
+                  </Button>
+                  <Button variant="outline" className="cursor-pointer">
+                    <ChevronsRight />
+                  </Button>
+                </div>
+              </div>
             </main>
             )}
       </div>
