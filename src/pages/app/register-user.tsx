@@ -240,12 +240,15 @@ export function RegisterUser() {
               </section>
               <div className="flex justify-between w-full">
                 <span>Total de {getManyUsersFn?.totalCount} item(s)</span>
-                <div>
+                <div className="flex gap-2 items-center justify-center">
+                  <span>Página 1 de 10</span>
                   <Button variant="outline" className="cursor-pointer">
                     <ChevronsLeft />
+                    <span className="sr-only">Primeira página</span>
                   </Button>
                   <Button variant="outline" className="cursor-pointer">
                     <ChevronLeft />
+                    <span className="sr-only">Página anterior</span>
                   </Button>
                   <Button variant="outline" className="cursor-pointer">
                     <ChevronRight />
