@@ -131,7 +131,7 @@ export function DashBoard() {
             <YAxis />
             <Tooltip />
             <Legend />
-            <Bar name="Quantidade de reservas" dataKey="lengthReservations" fill="#EA1A23" />
+            <Bar name="Quantidade de reservas" dataKey="lengthReservations" fill="#336754" />
           </BarChart>
         </div>
 

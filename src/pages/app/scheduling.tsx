@@ -8,6 +8,7 @@ import { useState } from 'react'
 import DatePicker from 'react-datepicker'
 import { Helmet } from 'react-helmet-async'
 import { Controller, useForm } from 'react-hook-form'
+import { useSearchParams } from 'react-router-dom'
 import { toast } from 'sonner'
 import * as z from 'zod'
 
@@ -35,9 +36,13 @@ export function Scheduling() {
     useForm<typeRegisterAvailabilitySchema>({
       resolver: zodResolver(registerAvailabilitySchema),
     })
+
+    const [searchParams] = useSearchParams()
+    const page = searchParams.get('page') || '1'
+
     const { data: getManyLaboratoriesFm, refetch } = useQuery({
-      queryKey: ['getManyLaboratoriesKey'],
-      queryFn: GetManyLaboratoriesFn,
+      queryKey: ['getManyLaboratoriesKey', page],
+      queryFn: () => GetManyLaboratoriesFn({ page }),
     })
 
     const { mutateAsync: createAvailabilityFn } = useMutation({
@@ -66,6 +71,26 @@ export function Scheduling() {
           throw new Error('As datas não correspondem')
         }
 
+        const hourBeginIsSameDay = dayjs(beginHourValue).get('h')
+        const hourEndIsSameDay = dayjs(endHourValue).get('h')
+
+        const Laboratory = getManyLaboratoriesFm?.laboratories.find((lab) => {
+          return lab.id === currentLaboratoryId
+        })
+
+        const isHourBetweenBeginHourAndEndHour = Laboratory?.reservations.find((date) => {
+          return Number(date.beginHour.split('T')[0].split('-')[2]) === currentDay &&
+          Number(date.endHour.split('T')[0].split('-')[2]) === currentDay &&
+
+          (Number(date.endHour.split('T')[1].split(':')[0]) > hourBeginIsSameDay &&
+          Number(date.endHour.split('T')[1].split(':')[0]) < hourEndIsSameDay) ||
+          (Number(date.beginHour.split('T')[1].split(':')[0]) > hourBeginIsSameDay &&
+          Number(date.beginHour.split('T')[1].split(':')[0]) < hourEndIsSameDay)
+        })
+
+        if (isHourBetweenBeginHourAndEndHour) {
+          throw new Error('Há um horário entre os horários selecionados que já foi reservado !')
+        }
         await createAvailabilityFn({
           laboratoryId,
           date: dayjs(startDate.toString()).format('YYYY-MM-DD'),
@@ -85,7 +110,7 @@ export function Scheduling() {
     }
 
     const filterPassedTime = (time) => {
-      const Laboratory = getManyLaboratoriesFm?.find((lab) => {
+      const Laboratory = getManyLaboratoriesFm?.laboratories.find((lab) => {
         return lab.id === currentLaboratoryId
       })
 
@@ -93,9 +118,25 @@ export function Scheduling() {
         return lab.endHour
       })
 
+      const arrayBeginHours = Laboratory?.reservations.map((lab) => {
+        return lab.beginHour
+      })
+
+      const arrayBeginHoursSameDay = arrayBeginHours?.filter((date) => {
+        return Number(date.split('T')[0].split('-')[2]) === currentDay
+      })
+
       const arrayEndHoursSameDay = arrayEndHours?.filter((date) => {
         return Number(date.split('T')[0].split('-')[2]) === currentDay
       })
+
+      const beginHour = arrayBeginHoursSameDay && arrayBeginHoursSameDay.reduce((latest, current) => {
+        return dayjs(latest).isBefore(current)
+          ? latest
+          : current
+      }, `2050-${Number(new Date().getMonth() + 1) > 9
+? ''
+: 0}${Number(new Date().getMonth()) + 1}-${new Date().getDate()}T18:00`)
 
       const latestHour = arrayEndHoursSameDay && arrayEndHoursSameDay.reduce((latest, current) => {
         return dayjs(latest).isAfter(current)
@@ -105,11 +146,11 @@ export function Scheduling() {
 ? ''
 : 0}${Number(new Date().getMonth()) + 1}-${new Date().getDate()}T18:00`)
 
-      console.log(latestHour)
       const currentTime = new Date(time)
       const currentHour = currentTime.getHours()
 
-      return currentHour >= 18 && currentHour <= 22 && currentHour >= Number(latestHour?.split('T')[1].split(':')[0])
+      return currentHour >= 18 && currentHour <= 22 && (currentHour >= Number(latestHour?.split('T')[1].split(':')[0]) ||
+       currentHour <= Number(beginHour?.split('T')[1].split(':')[0]))
     }
 
     return (
@@ -147,7 +188,7 @@ export function Scheduling() {
                       }}
                     >
                       <option value="">Escolha um laboratório</option>
-                      {getManyLaboratoriesFm?.map((laboratory) => (
+                      {getManyLaboratoriesFm?.laboratories.map((laboratory) => (
                         <option key={laboratory.id} value={laboratory.id}>{laboratory.name}</option>
                       ))}
 
