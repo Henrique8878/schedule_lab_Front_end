@@ -1,24 +1,31 @@
 import { api } from '@/lib/axios'
 
 export interface GetManyLaboratoriesReturn {
-  id: string
-  name: string
-  capacity: number
-  localization: string
-  description: string
-  quantityReservations: number
-  userid: string,
-  reservations:{
+  laboratories:{
     id: string
-    created_at: string
-    date: string
-    beginHour: string
-    endHour: string
-    laboratoryId: string
-  }[]
+    name: string
+    capacity: number
+    localization: string
+    description: string
+    quantityReservations: number
+    userid: string,
+    reservations:{
+      id: string
+      created_at: string
+      date: string
+      beginHour: string
+      endHour: string
+      laboratoryId: string
+    }[]
+  }[],
+  totalCount: number
 }
 
-export async function GetManyLaboratoriesFn() {
-  const response = await api.get<GetManyLaboratoriesReturn[]>('/laboratory')
+interface GetLaboratoriesParams {
+  page: string
+}
+
+export async function GetManyLaboratoriesFn({ page }:GetLaboratoriesParams) {
+  const response = await api.get<GetManyLaboratoriesReturn>(`/laboratory?page=${page}`)
   return response.data
 }

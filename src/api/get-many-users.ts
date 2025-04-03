@@ -1,6 +1,6 @@
 import { api } from '@/lib/axios'
 
-interface getManyUsersReturn {
+export interface getManyUsersReturn {
   users:{
     id: string
     created_at: string
@@ -25,6 +25,6 @@ interface getManyUsersParams {
 }
 
 export async function GetManyUsersFn({ page }:getManyUsersParams) {
-  const response = await api.get<getManyUsersReturn>('/many-users')
+  const response = await api.get<getManyUsersReturn>(`/many-users?page=${page.toString()}`)
   return response.data
 }

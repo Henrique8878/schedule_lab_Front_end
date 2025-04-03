@@ -1,6 +1,5 @@
 import { zodResolver } from '@hookform/resolvers/zod'
-import { useMutation, useQueryClient } from '@tanstack/react-query'
-import { useQuery } from '@tanstack/react-query'
+import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query'
 import { AxiosError } from 'axios'
 import { jwtDecode } from 'jwt-decode'
 import { parseCookies } from 'nookies'
@@ -134,7 +133,7 @@ export function DialogUpdate() {
           />
 
         </div>
-        <Button type="submit" variant="emerald" className="pointer">Salvar alterações</Button>
+        <Button type="submit" variant="destructive" className="pointer">Salvar alterações</Button>
 
       </form>
     </DialogContent>

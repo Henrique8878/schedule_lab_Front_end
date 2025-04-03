@@ -1,8 +1,7 @@
 import { zodResolver } from '@hookform/resolvers/zod'
 import { useMutation } from '@tanstack/react-query'
 import { AxiosError } from 'axios'
-import { setCookie } from 'nookies'
-import { parseCookies } from 'nookies'
+import { parseCookies, setCookie } from 'nookies'
 import { useContext } from 'react'
 import { } from 'react-auth-kit'
 import { Helmet } from 'react-helmet-async'
@@ -108,7 +107,7 @@ export function SignIn() {
             <Button
               className="w-full"
               disabled={isSubmitting}
-              variant="destructive"
+              variant="fagammon"
             >Fazer login
             </Button>
           </form>

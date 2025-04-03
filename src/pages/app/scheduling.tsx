@@ -1,11 +1,10 @@
 import 'react-datepicker/dist/react-datepicker.css'
 
 import { zodResolver } from '@hookform/resolvers/zod'
-import { useQuery } from '@tanstack/react-query'
-import { useMutation } from '@tanstack/react-query'
+import { useMutation, useQuery } from '@tanstack/react-query'
 import { setHours, setMinutes } from 'date-fns'
 import dayjs from 'dayjs'
-import { useEffect, useState } from 'react'
+import { useState } from 'react'
 import DatePicker from 'react-datepicker'
 import { Helmet } from 'react-helmet-async'
 import { Controller, useForm } from 'react-hook-form'

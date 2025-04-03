@@ -1,9 +1,9 @@
 import { Calendar, Home, Pen, User } from 'lucide-react'
-import { FlaskConical } from 'lucide-react'
 
 import { Separator } from '@/components/ui/separator'
 
 import { AccountMenu } from '../app/components/account-menu'
+import logoFagammon from './assets/images.jpeg'
 import { NavLink } from './nav-link'
 export function Header() {
   return (
@@ -11,7 +11,7 @@ export function Header() {
       <nav
         className="relative flex items-center space-x-6 h-8 p-8 border border-b"
       >
-        <FlaskConical />
+        <img src={logoFagammon} alt="" className="w-12 h-12" />
         <Separator className="h-6" orientation="vertical" />
         <NavLink to="/admin">
           <Home />

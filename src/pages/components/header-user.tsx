@@ -1,5 +1,4 @@
-import { Calendar } from 'lucide-react'
-import { FlaskConical } from 'lucide-react'
+import { Calendar, FlaskConical } from 'lucide-react'
 
 import { Separator } from '@/components/ui/separator'
 
