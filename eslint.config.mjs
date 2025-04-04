@@ -11,6 +11,7 @@ export default [
       'simple-import-sort/imports': 'error',
       'simple-import-sort/exports': 'error',
       camelcase: 'off',
+
     },
   },
 ]

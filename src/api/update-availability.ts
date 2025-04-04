@@ -1,6 +1,11 @@
 import { api } from '@/lib/axios'
 
-export interface GetManyAvailabilitiesFnReturn {
+interface UpdateAvailabilityFnProps {
+  id: string
+  status: string
+}
+
+interface UpdateAvailabilityFnReturn {
   availability:{
     id: string
     created_at: string
@@ -17,17 +22,12 @@ export interface GetManyAvailabilitiesFnReturn {
       description: string
       userId: string
     }
-  }[],
-  availabilityInMonth: number,
-  totalCount: number
-
+  }
 }
 
-interface GetManyAvailabilitiesProps {
-  page: string
-}
-
-export async function GetManyAvailabilitiesFn({ page }:GetManyAvailabilitiesProps) {
-  const response = await api.get<GetManyAvailabilitiesFnReturn>(`/availability/get-many?page=${page}`)
+export async function UpdateAvailabilityFn({ id, status }:UpdateAvailabilityFnProps) {
+  const response = await api.patch<UpdateAvailabilityFnReturn>(`/availability/${id}`, {
+    status,
+  })
   return response.data
 }

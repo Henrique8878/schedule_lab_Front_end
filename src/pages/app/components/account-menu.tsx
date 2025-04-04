@@ -1,13 +1,13 @@
 import { useQuery } from '@tanstack/react-query'
 import { jwtDecode } from 'jwt-decode'
-import { ChevronDown } from 'lucide-react'
-import { Building, LogOut } from 'lucide-react'
+import { Building, ChevronDown, LogOut } from 'lucide-react'
 import { destroyCookie, parseCookies } from 'nookies'
 import { useContext } from 'react'
 import { useNavigate } from 'react-router-dom'
 import { toast } from 'sonner'
 
 import { GetUserProfileFn } from '@/api/get-user-profile'
+import { Button } from '@/components/ui/button'
 import {
   Dialog,
   DialogTrigger,
@@ -39,10 +39,10 @@ export function AccountMenu() {
   })
 
   return (
-    <div className="absolute right-8 text-muted-foreground text-xl">
+    <Button className="absolute right-8 text-muted-foreground text-xl" variant="outline">
       <Dialog>
         <DropdownMenu>
-          <DropdownMenuTrigger className="flex items-center justify-center gap-2 cursor-pointer border py-2 px-4 rounded-lg left">
+          <DropdownMenuTrigger className="flex items-center justify-center gap-2 cursor-pointer py-2 px-4 rounded-lg left">
             <span>{userProfileData?.name}</span>
             <ChevronDown />
           </DropdownMenuTrigger>
@@ -86,6 +86,6 @@ export function AccountMenu() {
         </DropdownMenu>
         <DialogUpdate />
       </Dialog>
-    </div>
+    </Button>
   )
 }

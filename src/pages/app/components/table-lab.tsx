@@ -74,7 +74,9 @@ export function TableLab() {
                 <TableCell className="cursor-pointer flex gap-8 items-center justify-center">
                   <Dialog>
                     <DialogTrigger>
-                      <Pen className="cursor-pointer" />
+                      <Button variant="outline" className="cursor-pointer">
+                        <Pen className="cursor-pointer" />
+                      </Button>
                     </DialogTrigger>
                     <DialogUpdateLab
                       nameLab={lab.name} capacityLab={lab.capacity}
@@ -84,7 +86,9 @@ export function TableLab() {
                   </Dialog>
                   <AlertDialog>
                     <AlertDialogTrigger>
-                      <Trash />
+                      <Button variant="outline" className="cursor-pointer">
+                        <Trash />
+                      </Button>
                     </AlertDialogTrigger>
                     <AlertDialogLab labId={lab.id} />
                   </AlertDialog>

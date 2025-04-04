@@ -1,6 +1,7 @@
 import { FlaskConical, Plus } from 'lucide-react'
 import { Helmet } from 'react-helmet-async'
 
+import { Button } from '@/components/ui/button'
 import {
   Dialog,
   DialogTrigger,
@@ -27,10 +28,10 @@ export function RegisterLab() {
             <main className="w-full flex flex-col gap-4">
               <Dialog>
                 <DialogTrigger>
-                  <div className="flex justify-center items-center border h-15 w-15 rounded-lg cursor-pointer">
+                  <Button className="flex justify-center items-center border h-15 w-15 rounded-lg cursor-pointer" variant="outline">
                     <FlaskConical size={30} />
                     <Plus size={30} />
-                  </div>
+                  </Button>
                 </DialogTrigger>
                 <DialogRegisterLab />
               </Dialog>

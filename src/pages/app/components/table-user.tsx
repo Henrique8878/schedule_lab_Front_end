@@ -56,7 +56,9 @@ export function TableUser({ getManyUsersFn, page, totalPage, handlePage }:GetUse
                 <AlertDialog>
                   <AlertDialogTrigger>
                     <TableCell className="cursor-pointer">
-                      <Trash />
+                      <Button variant="outline" className="cursor-pointer">
+                        <Trash />
+                      </Button>
                     </TableCell>
                   </AlertDialogTrigger>
                   <AlertDialogContentComponent userId={user.id} />

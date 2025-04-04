@@ -6,12 +6,32 @@ interface CreateAvailabilityParams {
   endHour: string
 }
 
+interface CreateAvailabilityReturn {
+  status: string;
+  date: Date;
+  id: string;
+  created_at: Date;
+  beginHour: Date;
+  endHour: Date;
+  laboratoryId: string;
+  laboratory: {
+    id: string;
+    name: string;
+    capacity: number;
+    localization: string;
+    description: string;
+    userId: string;
+  }
+}
+
 export async function CreateAvailabilityFn(
   { laboratoryId, date, beginHour, endHour }
   :CreateAvailabilityParams) {
-  await api.post(`/availability/${laboratoryId}`, {
+  const response = await api.post<CreateAvailabilityReturn>(`/availability/${laboratoryId}`, {
     date,
     beginHour,
     endHour,
   })
+
+  return response.data
 }

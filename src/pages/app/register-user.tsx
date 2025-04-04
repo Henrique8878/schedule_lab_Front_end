@@ -4,6 +4,7 @@ import { Helmet } from 'react-helmet-async'
 import { useSearchParams } from 'react-router-dom'
 
 import { GetManyUsersFn } from '@/api/get-many-users'
+import { Button } from '@/components/ui/button'
 import {
   Dialog,
   DialogTrigger,
@@ -42,10 +43,10 @@ export function RegisterUser() {
           <main className="w-full flex flex-col gap-4">
             <Dialog>
               <DialogTrigger>
-                <div className="flex justify-center items-center border h-15 w-15 rounded-lg cursor-pointer">
+                <Button className="flex justify-center items-center border h-15 w-15 rounded-lg cursor-pointer" variant="outline">
                   <User size={30} />
                   <Plus size={30} />
-                </div>
+                </Button>
               </DialogTrigger>
               <DialogRegisterUser />
             </Dialog>
