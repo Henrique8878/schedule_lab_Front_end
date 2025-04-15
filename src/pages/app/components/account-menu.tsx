@@ -74,6 +74,7 @@ export function AccountMenu() {
                   navigate('/sign-in')
                   try {
                     toast.success('Logout realizado com sucesso')
+                    window.location.reload()
                   } catch {
                     toast.error('Erro ao realizar logout')
                   }

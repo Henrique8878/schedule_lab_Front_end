@@ -130,7 +130,7 @@ export function TableAvailabilityUser() {
                         <Trash />
                       </Button>
                     </AlertDialogTrigger>
-                    <AlertDialogAvailability id={avail.id} />
+                    <AlertDialogAvailability id={avail.id} category={userProfileData.category} />
                   </AlertDialog>
                 </TableCell>
 

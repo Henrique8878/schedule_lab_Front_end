@@ -2,13 +2,14 @@ import { zodResolver } from '@hookform/resolvers/zod'
 import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query'
 import { AxiosError } from 'axios'
 import { jwtDecode } from 'jwt-decode'
-import { parseCookies } from 'nookies'
+import { destroyCookie, parseCookies } from 'nookies'
 import { useContext } from 'react'
 import { Controller, useForm } from 'react-hook-form'
+import { useNavigate } from 'react-router-dom'
 import { toast } from 'sonner'
 import * as z from 'zod'
 
-import { GetUserProfileFn } from '@/api/get-user-profile'
+import { GetUserProfileFn, GetUserProfileFnReturn } from '@/api/get-user-profile'
 import { UpdateUserProfileFn } from '@/api/update-user-profile'
 import { Button } from '@/components/ui/button'
 import {
@@ -24,6 +25,10 @@ import { contextApp } from '../context/context-main'
 import { ReturningFunctionCaptureUser } from '../register-lab'
 
 export function DialogUpdate() {
+  const navigate = useNavigate()
+
+  const { setIsAuthenticated } = useContext(contextApp)
+
   const { isAdmin } = useContext(contextApp)
   const dialogUpdateSchema = z.object({
     name: z.string(),
@@ -48,6 +53,24 @@ export function DialogUpdate() {
     mutationFn: UpdateUserProfileFn,
     onSuccess(_, { name, email, category }) {
       const cached = queryClient.getQueryData(['GetUserProfileKey'])
+
+      const cachedReturn = cached as GetUserProfileFnReturn
+
+      if ((cachedReturn.email.toLowerCase() !== email.toLowerCase()) || cachedReturn.category.toLowerCase() !== category.toLowerCase()) {
+        const cookie = parseCookies()
+        if (cookie) {
+          destroyCookie(null, 'app.schedule.lab')
+          localStorage.removeItem('isAuthenticated')
+          setIsAuthenticated(false)
+          navigate('/sign-in')
+          try {
+            window.location.reload()
+            toast.success('Dados atualizados, faça o login novamente para recarregá-los')
+          } catch {
+            toast.error('Erro ao realizar a atualização de dados')
+          }
+        }
+      }
 
       if (cached) {
         queryClient.setQueryData(['GetUserProfileKey'], {
@@ -133,7 +156,7 @@ export function DialogUpdate() {
           />
 
         </div>
-        <Button type="submit" variant="destructive" className="pointer">Salvar alterações</Button>
+        <Button type="submit" variant="fagammon" className="pointer">Salvar alterações</Button>
 
       </form>
     </DialogContent>

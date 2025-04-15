@@ -2,12 +2,15 @@ import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query'
 import { formatDistanceToNow } from 'date-fns'
 import { ptBR } from 'date-fns/locale'
 import dayjs from 'dayjs'
+import { jwtDecode } from 'jwt-decode'
 import { ChevronLeft, ChevronRight, ChevronsLeft, ChevronsRight, Search, Trash } from 'lucide-react'
+import { parseCookies } from 'nookies'
 import { useContext } from 'react'
 import { useSearchParams } from 'react-router-dom'
 import { toast } from 'sonner'
 
 import { GetManyAvailabilitiesFn, GetManyAvailabilitiesFnReturn } from '@/api/get-many-availabilities'
+import { GetUserProfileFn } from '@/api/get-user-profile'
 import { UpdateAvailabilityFn } from '@/api/update-availability'
 import {
   AlertDialog,
@@ -28,6 +31,7 @@ import {
 } from '@/components/ui/table'
 
 import { contextApp } from '../context/context-main'
+import { ReturningFunctionCaptureUser } from '../register-lab'
 import { ManageStatus, typeStatus } from '../util/manageStatus'
 import { AlertDialogAvailability } from './alert-dialog-availability'
 
@@ -85,6 +89,17 @@ export function TableAvailability({ token }:TableAvailabilityParams) {
       toast.success('Reserva atualizada com sucesso!')
     },
   })
+
+  const cookie = parseCookies()
+  const tokenId = cookie['app.schedule.lab']
+  const payload:ReturningFunctionCaptureUser = jwtDecode(tokenId)
+
+  const { data: userProfileData } = useQuery({
+    queryKey: ['GetUserProfileKey'],
+    queryFn: async () => await GetUserProfileFn({ id: payload.sub }),
+  })
+
+  console.log(userProfileData?.category)
   return (
     <>
       <section className="flex flex-col border border-muted">
@@ -155,7 +170,7 @@ export function TableAvailability({ token }:TableAvailabilityParams) {
                             <Trash />
                           </Button>
                         </AlertDialogTrigger>
-                        <AlertDialogAvailability id={reserv.id} />
+                        <AlertDialogAvailability id={reserv.id} category={userProfileData?.category} />
                       </AlertDialog>
                     </TableCell>
 

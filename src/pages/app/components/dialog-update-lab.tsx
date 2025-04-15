@@ -33,7 +33,7 @@ export function DialogUpdateLab({ nameLab, capacityLab, descriptionLab, localiza
   })
 
     type typeRegisterLabSchema = z.infer<typeof registerLabSchema>
-    const { register, handleSubmit, formState: { isSubmitting, isValidating, errors } } =
+    const { register, handleSubmit, formState: { isValidating, errors } } =
     useForm<typeRegisterLabSchema>({
       resolver: zodResolver(registerLabSchema),
       values: {

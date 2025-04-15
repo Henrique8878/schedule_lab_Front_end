@@ -4,7 +4,7 @@ interface GetUserProfileFnParams {
   id: string
 }
 
-interface GetUserProfileFnReturn {
+export interface GetUserProfileFnReturn {
   id: string
   created_at: string
   name: string

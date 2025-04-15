@@ -29,10 +29,12 @@ interface DialogAvailabilityParams {
 
 export function DialogAvailability({ sub }:DialogAvailabilityParams) {
   const [startDate, setStartDate] = useState(setHours(setMinutes(new Date(), 0), 18))
-  const [beginHourValue, setBeginHourValue] = useState(setHours(setMinutes(new Date(), 0), 18))
-  const [endHourValue, setEndHourValue] = useState(setHours(setMinutes(new Date(), 0), 18))
+  const [beginHourValue, setBeginHourValue] = useState(startDate)
+  const [endHourValue, setEndHourValue] = useState(startDate)
   const [currentLaboratoryId, setCurrentLaboratoryId] = useState<string>('')
   const [currentDay, setCurrentDay] = useState<number | undefined>(startDate.getDate())
+  console.log(beginHourValue)
+  console.log(`${dayjs(beginHourValue.toString()).format('YYYY-MM-DDTHH:mm:ss.000')}Z`)
   const registerAvailabilitySchema = z.object({
     laboratoryId: z.string(),
   })
@@ -256,6 +258,8 @@ export function DialogAvailability({ sub }:DialogAvailabilityParams) {
                   selected={startDate} className="flex h-10 w-full items-center justify-between rounded-md border border-input bg-background px-3 py-2 text-sm ring-offset-background placeholder:text-muted-foreground focus:outline-none focus:ring-2 focus:ring-ring focus:ring-offset-2 disabled:cursor-not-allowed disabled:opacity-50 [&>span]:line-clamp-1" onChange={(date) => {
                     if (date) {
                       setStartDate(date)
+                      setBeginHourValue(date)
+                      setEndHourValue(date)
                     }
                     setCurrentDay(date?.getDate())
                   }}
@@ -279,7 +283,10 @@ export function DialogAvailability({ sub }:DialogAvailabilityParams) {
                   Início
                 </label>
                 <DatePicker
-                  selected={beginHourValue} showTimeSelect dateFormat="Pp" timeIntervals={60} className="flex h-10 w-full items-center justify-between rounded-md border border-input bg-background px-3 py-2 text-sm ring-offset-background placeholder:text-muted-foreground focus:outline-none focus:ring-2 focus:ring-ring focus:ring-offset-2 disabled:cursor-not-allowed disabled:opacity-50 [&>span]:line-clamp-1" onChange={(date) => {
+                  selected={beginHourValue} showTimeSelect showTimeSelectOnly timeCaption="Time" dateFormat="h:mm aa" timeIntervals={60} className="
+                  flex h-10 w-full items-center justify-between rounded-md border border-input bg-background px-3 py-2 text-sm ring-offset-background
+                  placeholder:text-muted-foreground focus:outline-none focus:ring-2 focus:ring-ring focus:ring-offset-2 disabled:cursor-not-allowed
+                  disabled:opacity-50 [&>span]:line-clamp-1" onChange={(date) => {
                     if (date) {
                       setBeginHourValue(date)
                     }
@@ -305,9 +312,13 @@ export function DialogAvailability({ sub }:DialogAvailabilityParams) {
                   Até
                 </label>
                 <DatePicker
-                  selected={endHourValue} showTimeSelect dateFormat="Pp" timeIntervals={60} className="flex h-10 w-full items-center justify-between rounded-md border border-input bg-background px-3 py-2 text-sm ring-offset-background placeholder:text-muted-foreground focus:outline-none focus:ring-2 focus:ring-ring focus:ring-offset-2 disabled:cursor-not-allowed disabled:opacity-50 [&>span]:line-clamp-1" onChange={(date) => {
+                  selected={endHourValue} showTimeSelect showTimeSelectOnly timeCaption="Time" dateFormat="h:mm aa" timeIntervals={60} className="
+                  flex h-10 w-full items-center justify-between rounded-md border border-input bg-background px-3 py-2 text-sm ring-offset-background
+                  placeholder:text-muted-foreground focus:outline-none focus:ring-2 focus:ring-ring focus:ring-offset-2 disabled:cursor-not-allowed
+                  disabled:opacity-50 [&>span]:line-clamp-1" onChange={(date) => {
                     if (date) {
                       setEndHourValue(date)
+                      console.log(date)
                     }
                   }}
                   minDate={new Date()}

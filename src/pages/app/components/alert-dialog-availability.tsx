@@ -5,7 +5,7 @@ import { useSearchParams } from 'react-router-dom'
 import { toast } from 'sonner'
 
 import { DeleteAvailabilityFn } from '@/api/delete-availability'
-import { GetManyLaboratoriesFn } from '@/api/get-many-laboratories'
+import { GetManyAvailabilitiesFn } from '@/api/get-many-availabilities'
 import { GetUserProfileFn } from '@/api/get-user-profile'
 import {
   AlertDialogAction,
@@ -21,9 +21,10 @@ import { ReturningFunctionCaptureUser } from '../register-lab'
 
 interface AlertDialogProps {
   id: string
+  category: string | undefined
 }
 
-export function AlertDialogAvailability({ id }:AlertDialogProps) {
+export function AlertDialogAvailability({ id, category }:AlertDialogProps) {
   // const queryClient = useQueryClient()
 
   const [searchParams] = useSearchParams()
@@ -40,8 +41,8 @@ export function AlertDialogAvailability({ id }:AlertDialogProps) {
   })
 
   const { refetch } = useQuery({
-    queryKey: ['getManyLaboratoriesKey', page],
-    queryFn: () => GetManyLaboratoriesFn({ page }),
+    queryKey: ['getManyAvailabilitiesKey', page],
+    queryFn: () => GetManyAvailabilitiesFn({ page }),
   })
 
   const { mutateAsync: deleteAvailability } = useMutation({
@@ -61,7 +62,8 @@ export function AlertDialogAvailability({ id }:AlertDialogProps) {
       //   })
       // }
       toast.success('Reserva excluída com sucesso!')
-      await (userProfileData?.category === 'admin'
+      console.log(userProfileData?.category)
+      await (category === 'admin'
         ? refetch()
         : refetchUserProfile())
     },
