@@ -1,4 +1,6 @@
 import { useQuery } from '@tanstack/react-query'
+import { formatDistanceToNow } from 'date-fns'
+import { ptBR } from 'date-fns/locale'
 import { ChevronLeft, ChevronRight, ChevronsLeft, ChevronsRight, Pen, Trash } from 'lucide-react'
 import { useSearchParams } from 'react-router-dom'
 
@@ -50,9 +52,10 @@ export function TableLab() {
         <Table>
           <TableHeader>
             <TableRow>
-              <TableHead className="w-[12rem]">ID do laboratório</TableHead>
+
               <TableHead className="w-[12rem]">Nome</TableHead>
               <TableHead className="w-[10rem]">Capacidade</TableHead>
+              <TableHead className="w-[10rem]">Criado há</TableHead>
               <TableHead className="w-[20rem]">Descrição</TableHead>
               <TableHead className="w-[15rem]">Localização</TableHead>
               <TableHead className="w-[5rem] text-center">Ação</TableHead>
@@ -61,9 +64,11 @@ export function TableLab() {
           <TableBody>
             {getManyLaboratories?.laboratories.map((lab) => (
               <TableRow key={lab.id}>
-                <TableCell className="font-medium">{lab.id}</TableCell>
+
                 <TableCell className="font-medium">{lab.name}</TableCell>
                 <TableCell>{lab.capacity} pessoa(s)</TableCell>
+                <TableCell>{formatDistanceToNow(lab.created_at, { addSuffix: true, locale: ptBR })}
+                </TableCell>
                 <TableCell>{lab.description
                   ? lab.description
                   : 'Nenhuma descrição'}

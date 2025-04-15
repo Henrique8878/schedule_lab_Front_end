@@ -69,6 +69,7 @@ export function AccountMenu() {
                 const cookie = parseCookies()
                 if (cookie) {
                   destroyCookie(null, 'app.schedule.lab')
+                  localStorage.removeItem('isAuthenticated')
                   setIsAuthenticated(false)
                   navigate('/sign-in')
                   try {

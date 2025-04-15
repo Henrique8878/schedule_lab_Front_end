@@ -105,10 +105,18 @@ export function SignIn() {
               />
             </div>
             <Button
-              className="w-full"
+              className="w-full cursor-pointer"
               disabled={isSubmitting}
               variant="fagammon"
             >Fazer login
+            </Button>
+            <Button
+              type="button"
+              className="w-full cursor-pointer"
+              disabled={isSubmitting}
+              variant="outline"
+              onClick={() => navigate('/public-table')}
+            >Agendamentos
             </Button>
           </form>
           <p className="text-center">

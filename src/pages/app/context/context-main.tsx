@@ -1,5 +1,4 @@
-import React, { ReactNode, useState } from 'react'
-import { createContext } from 'react'
+import React, { createContext, ReactNode, useState } from 'react'
 
 interface typeNodeChildren {
   children: ReactNode
@@ -18,6 +17,7 @@ export const contextApp = createContext({
 
 export function ContextMain({ children }:typeNodeChildren) {
   const [isAuthenticated, setIsAuthenticated] = useState<boolean>(false)
+  localStorage.setItem('isAuthenticated', JSON.stringify(isAuthenticated))
   const [isAdmin, setIsAdmin] = useState<boolean>(true)
 
   return (

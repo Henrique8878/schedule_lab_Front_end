@@ -1,10 +1,12 @@
-import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query'
+import { useMutation, useQuery } from '@tanstack/react-query'
+import { jwtDecode } from 'jwt-decode'
+import { parseCookies } from 'nookies'
 import { useSearchParams } from 'react-router-dom'
 import { toast } from 'sonner'
 
 import { DeleteAvailabilityFn } from '@/api/delete-availability'
-import { GetManyAvailabilitiesFnReturn } from '@/api/get-many-availabilities'
 import { GetManyLaboratoriesFn } from '@/api/get-many-laboratories'
+import { GetUserProfileFn } from '@/api/get-user-profile'
 import {
   AlertDialogAction,
   AlertDialogCancel,
@@ -15,16 +17,27 @@ import {
   AlertDialogTitle,
 } from '@/components/ui/alert-dialog'
 
+import { ReturningFunctionCaptureUser } from '../register-lab'
+
 interface AlertDialogProps {
   id: string
 }
 
 export function AlertDialogAvailability({ id }:AlertDialogProps) {
-  const queryClient = useQueryClient()
+  // const queryClient = useQueryClient()
 
   const [searchParams] = useSearchParams()
 
   const page = searchParams.get('page') || '1'
+
+  const cookie = parseCookies()
+  const token = cookie['app.schedule.lab']
+  const payload:ReturningFunctionCaptureUser = jwtDecode(token)
+
+  const { data: userProfileData, refetch: refetchUserProfile } = useQuery({
+    queryKey: ['GetUserProfileKey'],
+    queryFn: async () => await GetUserProfileFn({ id: payload.sub }),
+  })
 
   const { refetch } = useQuery({
     queryKey: ['getManyLaboratoriesKey', page],
@@ -33,22 +46,24 @@ export function AlertDialogAvailability({ id }:AlertDialogProps) {
 
   const { mutateAsync: deleteAvailability } = useMutation({
     mutationFn: DeleteAvailabilityFn,
-    onSuccess(data) {
-      const cached = queryClient.getQueryData(['getManyAvailabilitiesKey', page])
+    async onSuccess() {
+      // const cached = queryClient.getQueryData(['getManyAvailabilitiesKey', page])
 
-      if (cached) {
-        const cachedAvailability:GetManyAvailabilitiesFnReturn = cached as GetManyAvailabilitiesFnReturn
-        const filteredAvailabilities = cachedAvailability.availability.filter((avail) => {
-          return !(avail.id === data.id)
-        })
-        queryClient.setQueryData(['getManyAvailabilitiesKey', page], {
-          ...cachedAvailability,
-          availability: filteredAvailabilities,
-          totalCount: cachedAvailability.totalCount - 1,
-        })
-      }
+      // if (cached) {
+      //   const cachedAvailability:GetManyAvailabilitiesFnReturn = cached as GetManyAvailabilitiesFnReturn
+      //   const filteredAvailabilities = cachedAvailability.availability.filter((avail) => {
+      //     return !(avail.id === data.id)
+      //   })
+      //   queryClient.setQueryData(['getManyAvailabilitiesKey', page], {
+      //     ...cachedAvailability,
+      //     availability: filteredAvailabilities,
+      //     totalCount: cachedAvailability.totalCount - 1,
+      //   })
+      // }
       toast.success('Reserva excluída com sucesso!')
-      refetch()
+      await (userProfileData?.category === 'admin'
+        ? refetch()
+        : refetchUserProfile())
     },
   })
 

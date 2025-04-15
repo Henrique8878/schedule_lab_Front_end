@@ -3,6 +3,7 @@ import { formatDistanceToNow } from 'date-fns'
 import { ptBR } from 'date-fns/locale'
 import dayjs from 'dayjs'
 import { ChevronLeft, ChevronRight, ChevronsLeft, ChevronsRight, Search, Trash } from 'lucide-react'
+import { useContext } from 'react'
 import { useSearchParams } from 'react-router-dom'
 import { toast } from 'sonner'
 
@@ -26,11 +27,19 @@ import {
   TableRow,
 } from '@/components/ui/table'
 
+import { contextApp } from '../context/context-main'
 import { ManageStatus, typeStatus } from '../util/manageStatus'
 import { AlertDialogAvailability } from './alert-dialog-availability'
 
-export function TableAvailability() {
+interface TableAvailabilityParams {
+  token: string
+}
+
+export function TableAvailability({ token }:TableAvailabilityParams) {
+  const { isAdmin } = useContext(contextApp)
   const [searchParams, setSearchParams] = useSearchParams()
+
+  console.log(token)
 
   const page = searchParams.get('page') || '1'
 
@@ -82,15 +91,21 @@ export function TableAvailability() {
         <Table>
           <TableHeader>
             <TableRow>
-              <TableHead className="w-[12rem]">ID da reserva</TableHead>
-              <TableHead className="w-[12rem]">Criado há</TableHead>
+              <TableHead className="w-[12rem]">Laboratório</TableHead>
+              <TableHead className="w-[6rem]">Criado há</TableHead>
               <TableHead className="w-[8rem]">Data</TableHead>
               <TableHead className="w-[8rem]">Hora Início</TableHead>
               <TableHead className="w-[8rem]">Até</TableHead>
               <TableHead className="w-[10rem]">Status</TableHead>
-              <TableHead className="w-[10rem]">Laboratório</TableHead>
-              <TableHead className="w-[8rem]">Aprovar/Rejeitar</TableHead>
-              <TableHead className="w-[20rem] text-center">Ação</TableHead>
+
+              {token && isAdmin && (
+                <>
+                  <TableHead className="w-[8rem]">Aprovar/Rejeitar</TableHead>
+                  <TableHead className="w-[20rem] text-center">Ação</TableHead>
+
+                </>
+              )}
+
             </TableRow>
           </TableHeader>
           <TableBody>
@@ -104,7 +119,7 @@ export function TableAvailability() {
                       </Button>
                     </DialogTrigger>
                   </Dialog>
-                  <span>{reserv.id}</span>
+                  <span>{reserv.laboratory.name}</span>
                 </TableCell>
                 <TableCell className="font-medium">{formatDistanceToNow(reserv.created_at, { locale: ptBR, addSuffix: true })}</TableCell>
                 <TableCell>{dayjs(reserv.date).add(1, 'day').format('DD/MM/YYYY')}</TableCell>
@@ -114,34 +129,38 @@ export function TableAvailability() {
                 </TableCell>
                 <TableCell>{ManageStatus(reserv.status as typeStatus)}
                 </TableCell>
-                <TableCell>{reserv.laboratory.name}
-                </TableCell>
-                <TableCell className="flex gap-4">
-                  <Button
-                    variant="outline" className="cursor-pointer"
-                    onClick={() => updateAvailability({ id: reserv.id, status: 'approved' })}
-                    disabled={reserv.status === 'approved'}
-                  >Aprovar
-                  </Button>
-                  <Button
-                    variant="outline" className="cursor-pointer"
-                    onClick={() => updateAvailability({ id: reserv.id, status: 'rejected' })}
-                    disabled={reserv.status === 'rejected'}
-                  >Rejeitar
-                  </Button>
-                </TableCell>
 
-                <TableCell className="text-center">
-
-                  <AlertDialog>
-                    <AlertDialogTrigger>
-                      <Button variant="outline" className="cursor-pointer">
-                        <Trash />
+                {token && isAdmin && (
+                  <>
+                    <TableCell className="flex gap-4">
+                      <Button
+                        variant="outline" className="cursor-pointer"
+                        onClick={() => updateAvailability({ id: reserv.id, status: 'approved' })}
+                        disabled={reserv.status === 'approved'}
+                      >Aprovar
                       </Button>
-                    </AlertDialogTrigger>
-                    <AlertDialogAvailability id={reserv.id} />
-                  </AlertDialog>
-                </TableCell>
+                      <Button
+                        variant="outline" className="cursor-pointer"
+                        onClick={() => updateAvailability({ id: reserv.id, status: 'rejected' })}
+                        disabled={reserv.status === 'rejected'}
+                      >Rejeitar
+                      </Button>
+                    </TableCell>
+
+                    <TableCell className="text-center">
+
+                      <AlertDialog>
+                        <AlertDialogTrigger>
+                          <Button variant="outline" className="cursor-pointer">
+                            <Trash />
+                          </Button>
+                        </AlertDialogTrigger>
+                        <AlertDialogAvailability id={reserv.id} />
+                      </AlertDialog>
+                    </TableCell>
+
+                  </>
+                )}
 
               </TableRow>
             ))}

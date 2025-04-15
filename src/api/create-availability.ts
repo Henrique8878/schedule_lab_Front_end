@@ -1,6 +1,7 @@
 import { api } from '@/lib/axios'
 interface CreateAvailabilityParams {
   laboratoryId: string
+  userId: string
   date: string
   beginHour: string
   endHour: string
@@ -25,12 +26,13 @@ interface CreateAvailabilityReturn {
 }
 
 export async function CreateAvailabilityFn(
-  { laboratoryId, date, beginHour, endHour }
+  { laboratoryId, date, beginHour, endHour, userId }
   :CreateAvailabilityParams) {
   const response = await api.post<CreateAvailabilityReturn>(`/availability/${laboratoryId}`, {
     date,
     beginHour,
     endHour,
+    userId,
   })
 
   return response.data

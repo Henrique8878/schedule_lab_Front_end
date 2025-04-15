@@ -36,6 +36,7 @@ export function AlertDialogLab({ labId }:AlertDialogParams) {
         queryClient.setQueryData(['getManyLaboratoriesKey', page], {
           ...CachedLab,
           laboratories: removedLab,
+          totalCount: CachedLab.totalCount - 1,
         })
       }
 

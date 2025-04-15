@@ -34,7 +34,7 @@ export function TableUser({ getManyUsersFn, page, totalPage, handlePage }:GetUse
         <Table>
           <TableHeader>
             <TableRow>
-              <TableHead className="w-[12rem]">ID do usuário</TableHead>
+
               <TableHead className="w-[12rem]">Nome</TableHead>
               <TableHead className="w-[25rem]">E-mail</TableHead>
               <TableHead className="w-[15rem]">Criado há</TableHead>
@@ -45,7 +45,7 @@ export function TableUser({ getManyUsersFn, page, totalPage, handlePage }:GetUse
           <TableBody>
             {getManyUsersFn?.users.map((user) => (
               <TableRow key={user.id}>
-                <TableCell className="font-medium">{user.id}</TableCell>
+
                 <TableCell className="font-medium">{user.name}</TableCell>
                 <TableCell>{user.email}</TableCell>
                 <TableCell>{formatDistanceToNow(user.created_at, { locale: ptBR, addSuffix: true })}</TableCell>

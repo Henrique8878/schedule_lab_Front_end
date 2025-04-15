@@ -9,6 +9,7 @@ export interface GetManyAvailabilitiesFnReturn {
     endHour: string
     status: string
     laboratoryId: string
+    userId: string
     laboratory:{
       id: string
       name: string

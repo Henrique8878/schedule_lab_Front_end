@@ -1,10 +1,12 @@
 import 'react-datepicker/dist/react-datepicker.css'
 
 import { zodResolver } from '@hookform/resolvers/zod'
-import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query'
+import { useMutation, useQuery } from '@tanstack/react-query'
 import { AxiosError } from 'axios'
 import { setHours, setMinutes } from 'date-fns'
 import dayjs from 'dayjs'
+import { jwtDecode } from 'jwt-decode'
+import { parseCookies } from 'nookies'
 import { useState } from 'react'
 import DatePicker from 'react-datepicker'
 import { Controller, useForm } from 'react-hook-form'
@@ -13,12 +15,19 @@ import { toast } from 'sonner'
 import * as z from 'zod'
 
 import { CreateAvailabilityFn } from '@/api/create-availability'
-import { GetManyAvailabilitiesFnReturn } from '@/api/get-many-availabilities'
+import { GetManyAvailabilitiesFn } from '@/api/get-many-availabilities'
 import { GetManyLaboratoriesFn } from '@/api/get-many-laboratories'
+import { GetUserProfileFn } from '@/api/get-user-profile'
 import { Button } from '@/components/ui/button'
 import { DialogContent, DialogHeader, DialogTitle } from '@/components/ui/dialog'
 
-export function DialogAvailability() {
+import { ReturningFunctionCaptureUser } from '../register-lab'
+
+interface DialogAvailabilityParams {
+  sub: string
+}
+
+export function DialogAvailability({ sub }:DialogAvailabilityParams) {
   const [startDate, setStartDate] = useState(setHours(setMinutes(new Date(), 0), 18))
   const [beginHourValue, setBeginHourValue] = useState(setHours(setMinutes(new Date(), 0), 18))
   const [endHourValue, setEndHourValue] = useState(setHours(setMinutes(new Date(), 0), 18))
@@ -42,26 +51,41 @@ export function DialogAvailability() {
     const [searchParams] = useSearchParams()
     const page = searchParams.get('page') || '1'
 
-    const { data: getManyLaboratoriesFm, refetch } = useQuery({
+    const { data: getManyLaboratoriesFm } = useQuery({
       queryKey: ['getManyLaboratoriesKey', page],
       queryFn: () => GetManyLaboratoriesFn({ page }),
     })
 
-    const queryClient = useQueryClient()
+    // const queryClient = useQueryClient()
+
+    const cookie = parseCookies()
+    const token = cookie['app.schedule.lab']
+    const payload:ReturningFunctionCaptureUser = jwtDecode(token)
+
+    const { data: userProfileData, refetch: refetchUserProfile } = useQuery({
+      queryKey: ['GetUserProfileKey'],
+      queryFn: async () => await GetUserProfileFn({ id: payload.sub }),
+    })
+
+    const { refetch } = useQuery({
+      queryKey: ['getManyAvailabilitiesKey', page],
+      queryFn: () => GetManyAvailabilitiesFn({ page }),
+    })
 
     const { mutateAsync: createAvailabilityFn } = useMutation({
       mutationFn: CreateAvailabilityFn,
-      onSuccess(data) {
-        const cached = queryClient.getQueryData(['getManyAvailabilitiesKey', page])
+      onSuccess() {
+        // const cached = queryClient.getQueryData(['getManyAvailabilitiesKey', page])
 
-        if (cached) {
-          const cachedAvailability:GetManyAvailabilitiesFnReturn = cached as GetManyAvailabilitiesFnReturn
-          queryClient.setQueryData(['getManyAvailabilitiesKey', page], {
-            ...cachedAvailability,
-            availability: [...cachedAvailability.availability, data],
-            totalCount: cachedAvailability.totalCount + 1,
-          })
-        }
+        // if (cached) {
+        //   const cachedAvailability:GetManyAvailabilitiesFnReturn = cached as GetManyAvailabilitiesFnReturn
+        //   queryClient.setQueryData(['getManyAvailabilitiesKey', page], {
+        //     ...cachedAvailability,
+        //     availability: [...cachedAvailability.availability, data],
+        //     totalCount: cachedAvailability.totalCount + 1,
+        //   })
+        // }
+        refetch()
         toast.success('Laboratório reservado com sucesso !')
       },
     })
@@ -114,9 +138,12 @@ export function DialogAvailability() {
           date: dayjs(startDate.toString()).format('YYYY-MM-DD'),
           beginHour: `${dayjs(beginHourValue.toString()).format('YYYY-MM-DDTHH:mm:ss.000')}Z`,
           endHour: `${dayjs(endHourValue.toString()).format('YYYY-MM-DDTHH:mm:ss.000')}Z`,
+          userId: sub,
         })
 
-        refetch()
+        await (userProfileData?.category === 'admin'
+          ? refetch()
+          : refetchUserProfile())
       } catch (e) {
         if (e instanceof AxiosError) {
           if (e.response !== undefined) {

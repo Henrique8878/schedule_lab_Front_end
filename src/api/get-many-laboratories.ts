@@ -4,6 +4,7 @@ export interface GetManyLaboratoriesReturn {
   laboratories:{
     id: string
     name: string
+    created_at: string
     capacity: number
     localization: string
     description: string

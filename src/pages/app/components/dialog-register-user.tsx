@@ -89,6 +89,7 @@ export function DialogRegisterUser() {
             <Input
               type="text" className="border p-1 rounded-md outline-none"
               {...register('name')}
+              autoComplete="off"
             />
             <span className="min-h-6">
               <span className="text-xs text-red-500">{!isValidating
@@ -107,6 +108,7 @@ export function DialogRegisterUser() {
             <Input
               type="text" className="border p-1 rounded-md outline-none"
               {...register('email')}
+              autoComplete="off"
             />
             <span className="min-h-6">
               <span className="text-xs text-red-500">{!isValidating

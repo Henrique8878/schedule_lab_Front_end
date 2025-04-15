@@ -1,6 +1,4 @@
-import React from 'react'
-import { createBrowserRouter } from 'react-router-dom'
-import { Navigate } from 'react-router-dom'
+import { createBrowserRouter, Navigate } from 'react-router-dom'
 
 import { AppLayout } from '../_layouts/app'
 import { AppUserLayout } from '../_layouts/app-user-layout'
@@ -23,6 +21,10 @@ export const router = createBrowserRouter([
       {
         path: 'sign-in',
         element: <SignIn />,
+      },
+      {
+        path: 'public-table',
+        element: <Scheduling />,
       },
     ],
   },

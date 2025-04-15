@@ -1,5 +1,5 @@
 import { zodResolver } from '@hookform/resolvers/zod'
-import { useMutation, useQueryClient } from '@tanstack/react-query'
+import { useMutation, useQuery } from '@tanstack/react-query'
 import { AxiosError } from 'axios'
 import { jwtDecode } from 'jwt-decode'
 import { parseCookies } from 'nookies'
@@ -8,7 +8,7 @@ import { useSearchParams } from 'react-router-dom'
 import { toast } from 'sonner'
 import * as z from 'zod'
 
-import { GetManyLaboratoriesReturn } from '@/api/get-many-laboratories'
+import { GetManyLaboratoriesFn } from '@/api/get-many-laboratories'
 import { RegisterLabFn } from '@/api/register-lab'
 import { Button } from '@/components/ui/button'
 import {
@@ -41,24 +41,36 @@ export function DialogRegisterLab() {
       resolver: zodResolver(registerLaboratorySchema),
     })
 
-  const queryClient = useQueryClient()
+  // const queryClient = useQueryClient()
 
   const [searchParams] = useSearchParams()
 
   const page = searchParams.get('page') || '1'
+  const { /** data: getManyLaboratories,**/ refetch } = useQuery({
+    queryKey: ['getManyLaboratoriesKey', page],
+    queryFn: () => GetManyLaboratoriesFn({ page }),
+  })
+
+  // const totalPage = getManyLaboratories?.totalCount !== undefined
+  //   ? Math.ceil(getManyLaboratories?.totalCount / 10)
+  //   : 1
 
   const { mutateAsync: registerLabFn } = useMutation({
     mutationFn: RegisterLabFn,
-    onSuccess(data) {
-      const cached = queryClient.getQueryData(['getManyLaboratoriesKey', page])
+    onSuccess() {
+      // const cached = queryClient.getQueryData(['getManyLaboratoriesKey', page])
+      // console.log(`O dado é: ${data}`)
 
-      if (cached) {
-        const cachedLab:GetManyLaboratoriesReturn = cached as GetManyLaboratoriesReturn
-        queryClient.setQueryData(['getManyLaboratoriesKey'], {
-          ...cachedLab,
-          laboratories: [...cachedLab.laboratories, data],
-        })
-      }
+      // if (cached) {
+      //   const cachedLab:GetManyLaboratoriesReturn = cached as GetManyLaboratoriesReturn
+
+      //   queryClient.setQueryData(['getManyLaboratoriesKey', page], {
+      //     ...cachedLab,
+      //     laboratories: [...cachedLab.laboratories, data],
+      //     totalCount: cachedLab.totalCount + 1,
+      //   })
+      // }
+      refetch()
       toast.success('Laboratório cadastrado com sucesso!')
     },
   })
@@ -108,6 +120,7 @@ export function DialogRegisterLab() {
             <Input
               type="text" className="border p-1 rounded-md outline-none"
               {...register('name')}
+              autoComplete="off"
             />
             <span className="min-h-6">
               <span className="text-xs text-red-500">{!isValidating
@@ -126,6 +139,7 @@ export function DialogRegisterLab() {
             <Input
               type="text" className="border p-1 rounded-md outline-none"
               {...register('localization')}
+              autoComplete="off"
             />
             <span className="min-h-6">
               <span className="text-xs text-red-500">{!isValidating
@@ -145,6 +159,7 @@ export function DialogRegisterLab() {
               {...register('capacity')}
               min={1}
               max={100}
+              autoComplete="off"
             />
             <span className="min-h-6">
               <span className="text-xs text-red-500">{!isValidating

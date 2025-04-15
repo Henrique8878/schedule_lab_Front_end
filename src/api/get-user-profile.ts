@@ -20,6 +20,16 @@ interface GetUserProfileFnReturn {
     quantityReservations: number
     userid: string,
   }[]
+  manyAvailability:{
+    id: string
+    created_at: string
+    date: string
+    beginHour: string
+    endHour: string
+    status: string
+    laboratoryId: string
+    userId: string
+  }[]
 }
 
 export async function GetUserProfileFn({ id }:GetUserProfileFnParams) {
