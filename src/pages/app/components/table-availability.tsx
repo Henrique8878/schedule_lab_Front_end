@@ -5,8 +5,7 @@ import dayjs from 'dayjs'
 import { jwtDecode } from 'jwt-decode'
 import { ChevronLeft, ChevronRight, ChevronsLeft, ChevronsRight, Search, Trash } from 'lucide-react'
 import { parseCookies } from 'nookies'
-import { useContext } from 'react'
-import { useSearchParams } from 'react-router-dom'
+import { useLocation, useNavigate, useSearchParams } from 'react-router-dom'
 import { toast } from 'sonner'
 
 import { GetManyAvailabilitiesFn, GetManyAvailabilitiesFnReturn } from '@/api/get-many-availabilities'
@@ -30,20 +29,21 @@ import {
   TableRow,
 } from '@/components/ui/table'
 
-import { contextApp } from '../context/context-main'
 import { ReturningFunctionCaptureUser } from '../register-lab'
 import { ManageStatus, typeStatus } from '../util/manageStatus'
 import { AlertDialogAvailability } from './alert-dialog-availability'
+import { DialogLabDetails } from './dialog-lab-details'
 
 interface TableAvailabilityParams {
   token: string
+  isPublic: boolean
 }
 
-export function TableAvailability({ token }:TableAvailabilityParams) {
-  const { isAdmin } = useContext(contextApp)
-  const [searchParams, setSearchParams] = useSearchParams()
+export function TableAvailability({ isPublic }:TableAvailabilityParams) {
+  const location = useLocation()
+  const navigate = useNavigate()
 
-  console.log(token)
+  const [searchParams, setSearchParams] = useSearchParams()
 
   const page = searchParams.get('page') || '1'
 
@@ -86,6 +86,7 @@ export function TableAvailability({ token }:TableAvailabilityParams) {
           availability: cachedAvailabilityUpdated,
         })
       }
+
       toast.success('Reserva atualizada com sucesso!')
     },
   })
@@ -113,10 +114,10 @@ export function TableAvailability({ token }:TableAvailabilityParams) {
               <TableHead className="w-[8rem]">Até</TableHead>
               <TableHead className="w-[10rem]">Status</TableHead>
 
-              {token && isAdmin && (
+              {isPublic === false && (
                 <>
                   <TableHead className="w-[8rem]">Aprovar/Rejeitar</TableHead>
-                  <TableHead className="w-[20rem] text-center">Ação</TableHead>
+                  <TableHead className="w-[8rem] text-center">Ação</TableHead>
 
                 </>
               )}
@@ -133,6 +134,10 @@ export function TableAvailability({ token }:TableAvailabilityParams) {
                         <Search />
                       </Button>
                     </DialogTrigger>
+                    <DialogLabDetails
+                      laboratoryName={reserv.laboratory.name} laboratoryCapacity={reserv.laboratory.capacity}
+                      laboratoryDescription={reserv.laboratory.description} laboratoryLocalization={reserv.laboratory.localization}
+                    />
                   </Dialog>
                   <span>{reserv.laboratory.name}</span>
                 </TableCell>
@@ -145,18 +150,46 @@ export function TableAvailability({ token }:TableAvailabilityParams) {
                 <TableCell>{ManageStatus(reserv.status as typeStatus)}
                 </TableCell>
 
-                {token && isAdmin && (
+                {isPublic === false && (
                   <>
                     <TableCell className="flex gap-4">
                       <Button
                         variant="outline" className="cursor-pointer"
-                        onClick={() => updateAvailability({ id: reserv.id, status: 'approved' })}
+                        onClick={() => {
+                          updateAvailability({ id: reserv.id, status: 'approved' })
+                          const update = searchParams.get('updateStatus')
+
+                          if (update) {
+                            setSearchParams((state) => {
+                              state.set('updateStatus', new Date().toString())
+                              return state
+                            })
+                          } else {
+                            navigate(location.pathname + location.search
+                              ? location.search + `?updateStatus=${new Date()}`
+                              : `?updateStatus=${new Date()}`)
+                          }
+                        }}
                         disabled={reserv.status === 'approved'}
                       >Aprovar
                       </Button>
                       <Button
                         variant="outline" className="cursor-pointer"
-                        onClick={() => updateAvailability({ id: reserv.id, status: 'rejected' })}
+                        onClick={() => {
+                          updateAvailability({ id: reserv.id, status: 'rejected' })
+                          const update = searchParams.get('updateStatus')
+
+                          if (update) {
+                            setSearchParams((state) => {
+                              state.set('updateStatus', new Date().toString())
+                              return state
+                            })
+                          } else {
+                            navigate(location.pathname + location.search
+                              ? location.search + `?updateStatus=${new Date()}`
+                              : `?updateStatus=${new Date()}`)
+                          }
+                        }}
                         disabled={reserv.status === 'rejected'}
                       >Rejeitar
                       </Button>

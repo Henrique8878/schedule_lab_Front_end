@@ -8,6 +8,7 @@ import * as z from 'zod'
 
 import { GetManyUsersFn } from '@/api/get-many-users'
 import { RegisterUserFn } from '@/api/register-user'
+import { VerificationEmailFn } from '@/api/verification-email'
 import { Button } from '@/components/ui/button'
 import {
   DialogContent,
@@ -15,6 +16,7 @@ import {
   DialogTitle,
 } from '@/components/ui/dialog'
 import { Input } from '@/components/ui/input'
+
 export function DialogRegisterUser() {
   const registerUserSchema = z.object({
     name: z.string().min(3,
@@ -35,27 +37,32 @@ export function DialogRegisterUser() {
 
   const page = searchParams.get('page') || '1'
 
-  const { refetch } = useQuery({
+  useQuery({
     queryKey: ['getManyUsersKey', page],
     queryFn: () => GetManyUsersFn({ page: Number(page) }),
   })
 
   const { mutateAsync: registerUserFn } = useMutation({
     mutationFn: RegisterUserFn,
-    onSuccess: () => {
-      refetch()
+  })
+
+  const { mutateAsync: verify_email } = useMutation({
+    mutationFn: VerificationEmailFn,
+    onSuccess() {
+      toast.success('Um link de verificação foi enviado neste E-mail')
     },
   })
 
   async function handleRegister({ name, email, password_hash, category }:typeRegisterUserSchema) {
     try {
-      await registerUserFn({
+      const { newUser } = await registerUserFn({
         name,
         email,
         password_hash,
         category,
       })
-      toast.success('Cadastro realizado com sucesso !')
+
+      await verify_email({ email, newUser })
     } catch (e) {
       if (e instanceof AxiosError) {
         if (e.response !== undefined) {

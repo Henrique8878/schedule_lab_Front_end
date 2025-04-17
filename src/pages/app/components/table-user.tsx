@@ -44,27 +44,28 @@ export function TableUser({ getManyUsersFn, page, totalPage, handlePage }:GetUse
           </TableHeader>
           <TableBody>
             {getManyUsersFn?.users.map((user) => (
-              <TableRow key={user.id}>
+              user.isVerified !== false &&
+                <TableRow key={user.id}>
 
-                <TableCell className="font-medium">{user.name}</TableCell>
-                <TableCell>{user.email}</TableCell>
-                <TableCell>{formatDistanceToNow(user.created_at, { locale: ptBR, addSuffix: true })}</TableCell>
-                <TableCell>{user.category === 'admin'
-                  ? 'Admnistrador'
-                  : 'Usuário'}
-                </TableCell>
-                <AlertDialog>
-                  <AlertDialogTrigger>
-                    <TableCell className="cursor-pointer">
-                      <Button variant="outline" className="cursor-pointer">
-                        <Trash />
-                      </Button>
-                    </TableCell>
-                  </AlertDialogTrigger>
-                  <AlertDialogContentComponent userId={user.id} />
-                </AlertDialog>
+                  <TableCell className="font-medium">{user.name}</TableCell>
+                  <TableCell>{user.email}</TableCell>
+                  <TableCell>{formatDistanceToNow(user.created_at, { locale: ptBR, addSuffix: true })}</TableCell>
+                  <TableCell>{user.category === 'admin'
+                    ? 'Admnistrador'
+                    : 'Usuário'}
+                  </TableCell>
+                  <AlertDialog>
+                    <AlertDialogTrigger>
+                      <TableCell className="cursor-pointer">
+                        <Button variant="outline" className="cursor-pointer">
+                          <Trash />
+                        </Button>
+                      </TableCell>
+                    </AlertDialogTrigger>
+                    <AlertDialogContentComponent userId={user.id} />
+                  </AlertDialog>
 
-              </TableRow>
+                </TableRow>
             ))}
           </TableBody>
         </Table>

@@ -8,6 +8,7 @@ import { RegisterLab } from '../app/register-lab'
 import { RegisterUser } from '../app/register-user'
 import { ProtectedRoutes } from '../app/routes-auth/protected-routes'
 import { Scheduling } from '../app/scheduling'
+import { VerifyEmail } from '../app/verify-email'
 import { SignIn } from '../auth/sign-in'
 export const router = createBrowserRouter([
   {
@@ -23,9 +24,10 @@ export const router = createBrowserRouter([
         element: <SignIn />,
       },
       {
-        path: 'public-table',
-        element: <Scheduling />,
+        path: 'verify-email',
+        element: <VerifyEmail />,
       },
+
     ],
   },
   {
@@ -65,6 +67,10 @@ export const router = createBrowserRouter([
         children: [
           {
             path: '',
+            element: <Scheduling />,
+          },
+          {
+            path: 'public-table',
             element: <Scheduling />,
           },
         ],

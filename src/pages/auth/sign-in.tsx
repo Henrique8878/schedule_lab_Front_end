@@ -110,14 +110,7 @@ export function SignIn() {
               variant="fagammon"
             >Fazer login
             </Button>
-            <Button
-              type="button"
-              className="w-full cursor-pointer"
-              disabled={isSubmitting}
-              variant="outline"
-              onClick={() => navigate('/public-table')}
-            >Agendamentos
-            </Button>
+
           </form>
           <p className="text-center">
             Ao continuar, você concorda com nossos<br />

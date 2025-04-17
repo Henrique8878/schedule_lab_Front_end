@@ -5,7 +5,9 @@ import dayjs from 'dayjs'
 import { jwtDecode } from 'jwt-decode'
 import { Search, Trash } from 'lucide-react'
 import { parseCookies } from 'nookies'
+import { useLocation, useSearchParams } from 'react-router-dom'
 
+import { GetManyLaboratoriesFn } from '@/api/get-many-laboratories'
 import { GetUserProfileFn } from '@/api/get-user-profile'
 import {
   AlertDialog,
@@ -28,11 +30,15 @@ import {
 import { ReturningFunctionCaptureUser } from '../register-lab'
 import { ManageStatus, typeStatus } from '../util/manageStatus'
 import { AlertDialogAvailability } from './alert-dialog-availability'
+import { DialogLabDetails } from './dialog-lab-details'
 
 export function TableAvailabilityUser() {
   const cookie = parseCookies()
   const token = cookie['app.schedule.lab']
   const payload:ReturningFunctionCaptureUser = jwtDecode(token)
+
+  const location = useLocation()
+  console.log(location.pathname)
 
   // const { isAdmin } = useContext(contextApp)
   // const [searchParams, setSearchParams] = useSearchParams()
@@ -49,6 +55,15 @@ export function TableAvailabilityUser() {
   const { data: userProfileData } = useQuery({
     queryKey: ['GetUserProfileKey'],
     queryFn: async () => await GetUserProfileFn({ id: payload.sub }),
+  })
+
+  const [searchParams] = useSearchParams()
+
+  const page = searchParams.get('page') || '1'
+
+  const { data: getManyLaboratories } = useQuery({
+    queryKey: ['getManyLaboratoriesKey', page],
+    queryFn: () => GetManyLaboratoriesFn({ page }),
   })
 
   // const queryClient = useQueryClient()
@@ -90,7 +105,7 @@ export function TableAvailabilityUser() {
               <TableHead className="w-[8rem]">Até</TableHead>
               <TableHead className="w-[10rem]">Status</TableHead>
 
-              <TableHead className="w-[20rem] text-center">Ação</TableHead>
+              <TableHead className="w-[8rem] text-center">Ação</TableHead>
 
             </TableRow>
           </TableHeader>
@@ -104,11 +119,18 @@ export function TableAvailabilityUser() {
                         <Search />
                       </Button>
                     </DialogTrigger>
+                    {getManyLaboratories?.laboratories.map((lab) => (
+                      lab.id === avail.laboratoryId && <DialogLabDetails
+                        laboratoryName={lab.name}
+                        laboratoryCapacity={lab.capacity}
+                        laboratoryDescription={lab.description} laboratoryLocalization={lab.localization}
+                        key={lab.id}
+                                                       />
+                    ))}
                   </Dialog>
-                  {userProfileData.manyLaboratory.map((lab) => (
-                    <span key={lab.id}>{lab.id === avail.id
-                      ? lab.name
-                      : 'Nenhum laboratório associado'}
+                  {getManyLaboratories?.laboratories.map((lab) => (
+                    <span key={lab.id}>{lab.id === avail.laboratoryId &&
+                      lab.name}
                     </span>
                   ))}
 

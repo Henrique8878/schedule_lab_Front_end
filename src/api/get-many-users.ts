@@ -8,6 +8,8 @@ export interface getManyUsersReturn {
     email: string
     password_hash: string
     category: string
+    isVerified: boolean
+    expires_at: string
     manyLaboratory:{
       id: string
       name: string

@@ -16,6 +16,7 @@ export interface GetManyLaboratoriesReturn {
       date: string
       beginHour: string
       endHour: string
+      status: string
       laboratoryId: string
     }[]
   }[],

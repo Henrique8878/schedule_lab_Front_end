@@ -1,7 +1,7 @@
 import { useMutation, useQuery } from '@tanstack/react-query'
 import { jwtDecode } from 'jwt-decode'
 import { parseCookies } from 'nookies'
-import { useSearchParams } from 'react-router-dom'
+import { useNavigate, useSearchParams } from 'react-router-dom'
 import { toast } from 'sonner'
 
 import { DeleteAvailabilityFn } from '@/api/delete-availability'
@@ -27,7 +27,7 @@ interface AlertDialogProps {
 export function AlertDialogAvailability({ id, category }:AlertDialogProps) {
   // const queryClient = useQueryClient()
 
-  const [searchParams] = useSearchParams()
+  const [searchParams, setSearchParams] = useSearchParams()
 
   const page = searchParams.get('page') || '1'
 
@@ -45,6 +45,9 @@ export function AlertDialogAvailability({ id, category }:AlertDialogProps) {
     queryFn: () => GetManyAvailabilitiesFn({ page }),
   })
 
+  const navigate = useNavigate()
+  const removedAvailability = searchParams.get('removedAvailability')
+
   const { mutateAsync: deleteAvailability } = useMutation({
     mutationFn: DeleteAvailabilityFn,
     async onSuccess() {
@@ -61,6 +64,16 @@ export function AlertDialogAvailability({ id, category }:AlertDialogProps) {
       //     totalCount: cachedAvailability.totalCount - 1,
       //   })
       // }
+      if (removedAvailability) {
+        setSearchParams((state) => {
+          state.set('removedAvailability', `${id}+${new Date()}`)
+          return state
+        })
+      } else {
+        navigate(location.pathname + location.search
+          ? location.search + `?removedAvailability=${id}+${new Date()}`
+          : `?removedAvailability=${id}${new Date()}`)
+      }
       toast.success('Reserva excluída com sucesso!')
       console.log(userProfileData?.category)
       await (category === 'admin'

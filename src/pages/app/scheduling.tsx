@@ -5,7 +5,7 @@ import { jwtDecode } from 'jwt-decode'
 import { Calendar, Plus } from 'lucide-react'
 import { parseCookies } from 'nookies'
 import { Helmet } from 'react-helmet-async'
-import { useNavigate } from 'react-router-dom'
+import { useLocation, useNavigate } from 'react-router-dom'
 
 import { GetUserProfileFn } from '@/api/get-user-profile'
 import { Button } from '@/components/ui/button'
@@ -23,6 +23,8 @@ export function Scheduling() {
   const cookie = parseCookies()
   const token = cookie['app.schedule.lab']
   const payload:ReturningFunctionCaptureUser = jwtDecode(token)
+
+  const location = useLocation()
 
   const navigate = useNavigate()
 
@@ -56,7 +58,7 @@ export function Scheduling() {
           <>
             <main className="w-full flex flex-col gap-4">
 
-              {token && (
+              {location.pathname !== '/user/public-table' && (
                 <>
                   <Dialog>
                     <DialogTrigger>
@@ -70,13 +72,18 @@ export function Scheduling() {
                 </>
               )}
 
-              {userProfileData?.category === 'admin'
+              {location.pathname === '/user/public-table'
                 ? (
-                  <TableAvailability token={token} />
+                  <TableAvailability token={token} isPublic />
                   )
-                : (
-                  <TableAvailabilityUser />
-                  )}
+                : userProfileData?.category === 'admin'
+                  ? (
+                    <TableAvailability token={token} isPublic={false} />
+                    )
+
+                  : (
+                    <TableAvailabilityUser />
+                    )}
 
             </main>
           </>

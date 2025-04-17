@@ -25,6 +25,7 @@ RegisterUserFn({ name, email, password_hash, category }:RegisterUserParams) {
     email,
     password_hash,
     category,
+
   })
   return response.data
 }

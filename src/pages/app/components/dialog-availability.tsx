@@ -7,7 +7,7 @@ import { setHours, setMinutes } from 'date-fns'
 import dayjs from 'dayjs'
 import { jwtDecode } from 'jwt-decode'
 import { parseCookies } from 'nookies'
-import { useState } from 'react'
+import { useEffect, useState } from 'react'
 import DatePicker from 'react-datepicker'
 import { Controller, useForm } from 'react-hook-form'
 import { useSearchParams } from 'react-router-dom'
@@ -33,8 +33,7 @@ export function DialogAvailability({ sub }:DialogAvailabilityParams) {
   const [endHourValue, setEndHourValue] = useState(startDate)
   const [currentLaboratoryId, setCurrentLaboratoryId] = useState<string>('')
   const [currentDay, setCurrentDay] = useState<number | undefined>(startDate.getDate())
-  console.log(beginHourValue)
-  console.log(`${dayjs(beginHourValue.toString()).format('YYYY-MM-DDTHH:mm:ss.000')}Z`)
+
   const registerAvailabilitySchema = z.object({
     laboratoryId: z.string(),
   })
@@ -53,10 +52,14 @@ export function DialogAvailability({ sub }:DialogAvailabilityParams) {
     const [searchParams] = useSearchParams()
     const page = searchParams.get('page') || '1'
 
-    const { data: getManyLaboratoriesFm } = useQuery({
+    const { data: getManyLaboratoriesFm, refetch: RefetchLab } = useQuery({
       queryKey: ['getManyLaboratoriesKey', page],
       queryFn: () => GetManyLaboratoriesFn({ page }),
     })
+
+    useEffect(() => {
+      RefetchLab()
+    }, [location.search])
 
     // const queryClient = useQueryClient()
 
@@ -88,6 +91,7 @@ export function DialogAvailability({ sub }:DialogAvailabilityParams) {
         //   })
         // }
         refetch()
+        RefetchLab()
         toast.success('Laboratório reservado com sucesso !')
       },
     })
@@ -167,7 +171,7 @@ export function DialogAvailability({ sub }:DialogAvailabilityParams) {
         return lab.id === currentLaboratoryId
       })
 
-      const arrayBeginHours = Laboratory?.reservations.map((lab) => {
+      const arrayBeginHours = Laboratory?.reservations.filter((lab) => lab.status === 'approved' || lab.status === 'pending').map((lab) => {
         return lab.beginHour
       })
 
@@ -191,7 +195,7 @@ export function DialogAvailability({ sub }:DialogAvailabilityParams) {
         return lab.id === currentLaboratoryId
       })
 
-      const arrayEndHours = Laboratory?.reservations.map((lab) => {
+      const arrayEndHours = Laboratory?.reservations.filter((lab) => lab.status === 'approved' || lab.status === 'pending').map((lab) => {
         return lab.endHour
       })
 

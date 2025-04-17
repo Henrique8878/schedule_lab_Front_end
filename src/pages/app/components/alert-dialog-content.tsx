@@ -50,6 +50,7 @@ export function AlertDialogContentComponent({ userId }:AlertDialogContentCompone
         queryClient.setQueryData(['getManyUsersKey', page], {
           ...cachedUser,
           users: removedUser,
+          totalCount: cachedUser.totalCount - 1,
         })
       }
 
