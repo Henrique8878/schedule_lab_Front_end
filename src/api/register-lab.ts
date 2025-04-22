@@ -6,6 +6,8 @@ interface RegisterLabFnParams {
   localization: string
   capacity: number
   description: string
+  startOfBlockade: number
+  endOfBlockade: number
 }
 
 interface RegisterLabReturning {
@@ -14,6 +16,8 @@ interface RegisterLabReturning {
   capacity: number
   localization: string
   description: string
+  startOfBlockade: number
+  endOfBlockade: number
   quantityReservations: number
   userid: string,
   reservations:{
@@ -26,14 +30,17 @@ interface RegisterLabReturning {
   }[]
 }
 
-export async function RegisterLabFn({ userId, name, localization, capacity, description }
+export async function RegisterLabFn({ userId, name, localization, capacity, description, startOfBlockade, endOfBlockade }
 :RegisterLabFnParams) {
+  console.log(typeof startOfBlockade)
   const response = await api.post<RegisterLabReturning>('/laboratory', {
     userId,
     name,
     localization,
     capacity,
     description,
+    startOfBlockade,
+    endOfBlockade,
   })
 
   return response.data

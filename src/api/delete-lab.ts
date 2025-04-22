@@ -10,6 +10,8 @@ interface DeleteLabReturning {
   capacity: number
   localization: string
   description: string
+  startOfBlockade: number
+  endOfBlockade: number
   quantityReservations: number
   userid: string,
   reservations:{

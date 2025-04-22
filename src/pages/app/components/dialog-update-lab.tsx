@@ -30,6 +30,8 @@ export function DialogUpdateLab({ nameLab, capacityLab, descriptionLab, localiza
     capacity: z.string().min(1),
     description: z.string().optional(),
     localization: z.string().optional(),
+    startOfBlockade: z.string().optional(),
+    endOfBlockade: z.string().optional(),
   })
 
     type typeRegisterLabSchema = z.infer<typeof registerLabSchema>
@@ -75,9 +77,17 @@ export function DialogUpdateLab({ nameLab, capacityLab, descriptionLab, localiza
       },
     })
 
-    async function handleUpdate({ name, localization, capacity, description }: typeRegisterLabSchema) {
+    async function handleUpdate({ name, localization, capacity, description, startOfBlockade, endOfBlockade }: typeRegisterLabSchema) {
       try {
-        await updateLab({ name, localization, capacity: Number(capacity), description, labId })
+        await updateLab({
+          name,
+          localization,
+          capacity: Number(capacity),
+          description,
+          startOfBlockade: Number(startOfBlockade),
+          endOfBlockade: Number(endOfBlockade),
+          labId,
+        })
       } catch (e) {
         toast.error('Erro ao atualizar laboratório')
         console.error(e)
@@ -161,6 +171,46 @@ export function DialogUpdateLab({ nameLab, capacityLab, descriptionLab, localiza
               <span className="min-h-6">
                 <span className="text-xs text-red-500">{!isValidating
                   ? errors.description?.message
+                  : ''}
+                </span>
+              </span>
+            </div>
+            <div className="flex flex-col gap-2">
+              <label
+                htmlFor=""
+                className="text-foreground font-medium"
+              >Funcionamento (De) -- HORAS (OPCIONAL)
+              </label>
+              <Input
+                type="number" className="border p-1 rounded-md outline-none"
+                {...register('startOfBlockade')}
+                min={1}
+                max={100}
+                autoComplete="off"
+              />
+              <span className="min-h-6">
+                <span className="text-xs text-red-500">{!isValidating
+                  ? errors.startOfBlockade?.message
+                  : ''}
+                </span>
+              </span>
+            </div>
+            <div className="flex flex-col gap-2">
+              <label
+                htmlFor=""
+                className="text-foreground font-medium"
+              >Funcionamento (Até) -- HORAS (OPCIONAL)
+              </label>
+              <Input
+                type="number" className="border p-1 rounded-md outline-none"
+                {...register('endOfBlockade')}
+                min={1}
+                max={100}
+                autoComplete="off"
+              />
+              <span className="min-h-6">
+                <span className="text-xs text-red-500">{!isValidating
+                  ? errors.endOfBlockade?.message
                   : ''}
                 </span>
               </span>

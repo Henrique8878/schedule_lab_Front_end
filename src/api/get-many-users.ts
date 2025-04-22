@@ -16,6 +16,8 @@ export interface getManyUsersReturn {
       capacity: number
       localization: string
       description: string
+      startOfBlockade: number
+      endOfBlockade: number
       userId: string
     }[]
   }[],

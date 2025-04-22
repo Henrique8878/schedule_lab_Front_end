@@ -32,7 +32,6 @@ export function DialogUpdate() {
   const { isAdmin } = useContext(contextApp)
   const dialogUpdateSchema = z.object({
     name: z.string(),
-    email: z.string().email(),
     category: z.enum(['user', 'admin']),
   })
 
@@ -51,12 +50,12 @@ export function DialogUpdate() {
 
   const { mutateAsync: updateUserProfileFn } = useMutation({
     mutationFn: UpdateUserProfileFn,
-    onSuccess(_, { name, email, category }) {
+    onSuccess(_, { name, category }) {
       const cached = queryClient.getQueryData(['GetUserProfileKey'])
 
       const cachedReturn = cached as GetUserProfileFnReturn
 
-      if ((cachedReturn.email.toLowerCase() !== email.toLowerCase()) || cachedReturn.category.toLowerCase() !== category.toLowerCase()) {
+      if (cachedReturn.category.toLowerCase() !== category.toLowerCase()) {
         const cookie = parseCookies()
         if (cookie) {
           destroyCookie(null, 'app.schedule.lab')
@@ -76,7 +75,7 @@ export function DialogUpdate() {
         queryClient.setQueryData(['GetUserProfileKey'], {
           ...cached,
           name,
-          email,
+
           category,
         })
       }
@@ -87,16 +86,16 @@ export function DialogUpdate() {
     resolver: zodResolver(dialogUpdateSchema),
     defaultValues: {
       name: userProfileData?.name,
-      email: userProfileData?.email,
+
     },
   })
 
-  async function handleuserUpdateSubmit({ name, email, category }:typeDialogUpdateSchema) {
+  async function handleuserUpdateSubmit({ name, category }:typeDialogUpdateSchema) {
     try {
       await updateUserProfileFn({
         id: payload.sub,
         name,
-        email,
+
         category,
       })
       toast.success('Usuário atualizado !')
@@ -123,10 +122,7 @@ export function DialogUpdate() {
           <Label>Nome</Label>
           <Input type="text" {...register('name')} />
         </div>
-        <div className="flex gap-5">
-          <Label>Email</Label>
-          <Input type="text" {...register('email')} />
-        </div>
+
         <div className="flex gap-5 ">
           <Label>Categoria</Label>
           <Controller

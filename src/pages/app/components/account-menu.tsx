@@ -7,7 +7,6 @@ import { useNavigate } from 'react-router-dom'
 import { toast } from 'sonner'
 
 import { GetUserProfileFn } from '@/api/get-user-profile'
-import { Button } from '@/components/ui/button'
 import {
   Dialog,
   DialogTrigger,
@@ -39,7 +38,7 @@ export function AccountMenu() {
   })
 
   return (
-    <Button className="absolute right-8 text-muted-foreground text-xl" variant="outline">
+    <div className="absolute right-8 text-muted-foreground text-xl">
       <Dialog>
         <DropdownMenu>
           <DropdownMenuTrigger className="flex items-center justify-center gap-2 cursor-pointer py-2 px-4 rounded-lg left">
@@ -88,6 +87,6 @@ export function AccountMenu() {
         </DropdownMenu>
         <DialogUpdate />
       </Dialog>
-    </Button>
+    </div>
   )
 }

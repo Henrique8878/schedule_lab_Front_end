@@ -6,14 +6,18 @@ interface UpdateLabParams {
   capacity: number
   localization: string | undefined
   description: string | undefined
+  startOfBlockade: number | undefined,
+  endOfBlockade: number | undefined
 }
 
-export async function UpdateLab({ labId, name, capacity, localization, description }:UpdateLabParams) {
+export async function UpdateLab({ labId, name, capacity, localization, description, startOfBlockade, endOfBlockade }:UpdateLabParams) {
   const response = await api.patch(`/laboratory/${labId}`, {
     name,
     capacity,
     localization,
     description,
+    startOfBlockade,
+    endOfBlockade,
   })
 
   return response.data

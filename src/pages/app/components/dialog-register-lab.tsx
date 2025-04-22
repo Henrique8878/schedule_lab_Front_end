@@ -29,6 +29,8 @@ export function DialogRegisterLab() {
       { message: 'o campo precisa ter pelo menos 2 caracteres' }),
     capacity: z.string(),
     description: z.string(),
+    startOfBlockade: z.string(),
+    endOfBlockade: z.string(),
   })
 
   type typeRegisterLaboratorySchema = z.infer<typeof registerLaboratorySchema>
@@ -82,7 +84,7 @@ export function DialogRegisterLab() {
     return payload
   }
 
-  async function handleRegister({ name, localization, capacity, description }:typeRegisterLaboratorySchema) {
+  async function handleRegister({ name, localization, capacity, description, startOfBlockade, endOfBlockade }:typeRegisterLaboratorySchema) {
     try {
       await registerLabFn({
         userId: captureIdUser().sub,
@@ -90,6 +92,8 @@ export function DialogRegisterLab() {
         localization,
         capacity: Number(capacity),
         description,
+        startOfBlockade: Number(startOfBlockade),
+        endOfBlockade: Number(endOfBlockade),
       })
     } catch (e) {
       if (e instanceof AxiosError) {
@@ -176,6 +180,46 @@ export function DialogRegisterLab() {
               Descrição
             </label>
             <Textarea {...register('description')} />
+          </div>
+          <div className="flex flex-col gap-2">
+            <label
+              htmlFor=""
+              className="text-foreground font-medium"
+            >Funcionamento (De) -- HORAS
+            </label>
+            <Input
+              type="number" className="border p-1 rounded-md outline-none"
+              {...register('startOfBlockade')}
+              min={6}
+              max={21}
+              autoComplete="off"
+            />
+            <span className="min-h-6">
+              <span className="text-xs text-red-500">{!isValidating
+                ? errors.startOfBlockade?.message
+                : ''}
+              </span>
+            </span>
+          </div>
+          <div className="flex flex-col gap-2">
+            <label
+              htmlFor=""
+              className="text-foreground font-medium"
+            >Funcionamento (Até) -- HORAS
+            </label>
+            <Input
+              type="number" className="border p-1 rounded-md outline-none"
+              {...register('endOfBlockade')}
+              min={8}
+              max={23}
+              autoComplete="off"
+            />
+            <span className="min-h-6">
+              <span className="text-xs text-red-500">{!isValidating
+                ? errors.endOfBlockade?.message
+                : ''}
+              </span>
+            </span>
           </div>
           <Button
             className="w-full cursor-pointer text-md"

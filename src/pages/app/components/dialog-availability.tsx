@@ -183,10 +183,14 @@ export function DialogAvailability({ sub }:DialogAvailabilityParams) {
       const currentHour = currentTime.getHours()
 
       return arrayBeginHoursSameDay !== undefined
-        ? currentHour >= 18 && currentHour <= 22 && arrayBeginHoursSameDay?.every((date) => {
-          const hourFromDate = Number(date.split('T')[1].split(':')[0])
-          return hourFromDate !== currentHour
-        })
+        ? (currentHour >= (Laboratory?.startOfBlockade !== undefined
+            ? Laboratory.startOfBlockade
+            : 18)) && (currentHour <= (Laboratory?.endOfBlockade !== undefined
+            ? Laboratory.endOfBlockade - 1
+            : 22)) && arrayBeginHoursSameDay?.every((date) => {
+            const hourFromDate = Number(date.split('T')[1].split(':')[0])
+            return hourFromDate !== currentHour
+          })
         : currentHour >= 18 && currentHour <= 22
     }
 
@@ -207,10 +211,14 @@ export function DialogAvailability({ sub }:DialogAvailabilityParams) {
       const currentHour = currentTime.getHours()
 
       return arrayEndHoursSameDay !== undefined
-        ? currentHour >= 19 && currentHour <= 23 && arrayEndHoursSameDay?.every((date) => {
-          const hourFromDate = Number(date.split('T')[1].split(':')[0])
-          return hourFromDate !== currentHour
-        })
+        ? (currentHour >= (Laboratory?.startOfBlockade !== undefined
+            ? Laboratory.startOfBlockade + 1
+            : 19)) && (currentHour <= (Laboratory?.endOfBlockade !== undefined
+            ? Laboratory.endOfBlockade
+            : 23)) && arrayEndHoursSameDay?.every((date) => {
+            const hourFromDate = Number(date.split('T')[1].split(':')[0])
+            return hourFromDate !== currentHour
+          })
         : currentHour >= 19 && currentHour <= 23
     }
     return (
