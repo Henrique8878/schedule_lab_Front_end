@@ -18,6 +18,7 @@ export interface GetManyAvailabilitiesFnReturn {
       description: string
       startOfBlockade: number
       endOfBlockade: number
+      operatingDays: string
       userId: string
     }
   }[],

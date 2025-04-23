@@ -66,15 +66,15 @@ export function AlertDialogAvailability({ id, category }:AlertDialogProps) {
       // }
       if (removedAvailability) {
         setSearchParams((state) => {
-          state.set('removedAvailability', `${id}+${new Date()}`)
+          state.set('removedAvailability', `${id}+${new Date().getMilliseconds()}`)
           return state
         })
       } else {
-        navigate(location.pathname + location.search
-          ? location.search + `?removedAvailability=${id}+${new Date()}`
-          : `?removedAvailability=${id}${new Date()}`)
+        navigate(location.search
+          ? `${location.pathname}${location.search}&removedAvailability=${new Date().getMilliseconds()}`
+          : `${location.pathname}?removedAvailability=${new Date().getMilliseconds()}`)
       }
-      toast.success('Reserva excluída com sucesso!')
+      toast.error('Reserva excluída !')
       console.log(userProfileData?.category)
       await (category === 'admin'
         ? refetch()

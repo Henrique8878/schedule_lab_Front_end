@@ -19,7 +19,7 @@ import { GetManyAvailabilitiesFn } from '@/api/get-many-availabilities'
 import { GetManyLaboratoriesFn } from '@/api/get-many-laboratories'
 import { GetUserProfileFn } from '@/api/get-user-profile'
 import { Button } from '@/components/ui/button'
-import { DialogContent, DialogHeader, DialogTitle } from '@/components/ui/dialog'
+import { DialogClose, DialogContent, DialogHeader, DialogTitle } from '@/components/ui/dialog'
 
 import { ReturningFunctionCaptureUser } from '../register-lab'
 
@@ -92,53 +92,13 @@ export function DialogAvailability({ sub }:DialogAvailabilityParams) {
         // }
         refetch()
         RefetchLab()
-        toast.success('Laboratório reservado com sucesso !')
+        toast.success('Laboratório reservado!')
       },
     })
 
     async function handleRegister({ laboratoryId }
     :typeRegisterAvailabilitySchema) {
       try {
-        const isSameDayStartHour = dayjs(startDate).startOf('day').isSame(dayjs(beginHourValue).startOf('day'))
-        const isSameDayEndHour = dayjs(startDate).startOf('day').isSame(dayjs(endHourValue).startOf('day'))
-
-        const isBeforeBeginHourEndHour = dayjs(beginHourValue).hour() < dayjs(endHourValue).hour()
-
-        const isBeforeBeginHourCurrentHour = dayjs(beginHourValue).isBefore(new Date())
-
-        if (isBeforeBeginHourCurrentHour) {
-          throw new Error('Não é possível cadastrar um horário anterior ao horário atual')
-        }
-
-        if (!isBeforeBeginHourEndHour) {
-          throw new Error('O horário final não pode ser anterior ou igual ao horário inicial')
-        }
-
-        if (!isSameDayEndHour || !isSameDayStartHour) {
-          throw new Error('As datas não correspondem')
-        }
-
-        const hourBeginIsSameDay = dayjs(beginHourValue).get('h')
-        const hourEndIsSameDay = dayjs(endHourValue).get('h')
-
-        const Laboratory = getManyLaboratoriesFm?.laboratories.find((lab) => {
-          return lab.id === currentLaboratoryId
-        })
-
-        const isHourBetweenBeginHourAndEndHour = Laboratory?.reservations.find((date) => {
-          return (Number(date.beginHour.split('T')[0].split('-')[2]) === currentDay &&
-          Number(date.endHour.split('T')[0].split('-')[2]) === currentDay) &&
-
-          ((Number(date.endHour.split('T')[1].split(':')[0]) > hourBeginIsSameDay &&
-          Number(date.endHour.split('T')[1].split(':')[0]) < hourEndIsSameDay) ||
-          (Number(date.beginHour.split('T')[1].split(':')[0]) > hourBeginIsSameDay &&
-          Number(date.beginHour.split('T')[1].split(':')[0]) < hourEndIsSameDay))
-        })
-
-        if (isHourBetweenBeginHourAndEndHour) {
-          toast.error('Erro: Há um horário entre os horários selecionados que já foi reservado !')
-          throw new Error('Há um horário entre os horários selecionados que já foi reservado !')
-        }
         await createAvailabilityFn({
           laboratoryId,
           date: dayjs(startDate.toString()).format('YYYY-MM-DD'),
@@ -182,15 +142,35 @@ export function DialogAvailability({ sub }:DialogAvailabilityParams) {
       const currentTime = new Date(time)
       const currentHour = currentTime.getHours()
 
+      const arrayHours = Laboratory?.reservations
+        .filter((lab) => lab.status === 'approved' || lab.status === 'pending')
+        .filter((lab) => Number(lab.beginHour.split('T')[0].split('-')[2]) === currentDay)
+        .map((lab) => {
+          return {
+            labBeginHour: lab.beginHour,
+            labEndHour: lab.endHour,
+          }
+        })
+
+      const arrayHoursNumber = arrayHours?.filter((date) => {
+        return {
+          labBeginHourNumber: Number(date.labBeginHour.split('T')[0].split('-')[2]) === currentDay,
+          labEndHourNumber: Number(date.labBeginHour.split('T')[0].split('-')[2]) === currentDay,
+        }
+      })
+
+      console.log(arrayHoursNumber)
       return arrayBeginHoursSameDay !== undefined
         ? (currentHour >= (Laboratory?.startOfBlockade !== undefined
             ? Laboratory.startOfBlockade
             : 18)) && (currentHour <= (Laboratory?.endOfBlockade !== undefined
             ? Laboratory.endOfBlockade - 1
-            : 22)) && arrayBeginHoursSameDay?.every((date) => {
-            const hourFromDate = Number(date.split('T')[1].split(':')[0])
-            return hourFromDate !== currentHour
-          })
+            : 22)) && (arrayHoursNumber !== undefined
+            ? arrayHoursNumber?.every((objectReserv) => {
+              return currentHour < Number(objectReserv.labBeginHour.split('T')[1].split(':')[0]) ||
+              currentHour >= Number(objectReserv.labEndHour.split('T')[1].split(':')[0])
+            })
+            : true)
         : currentHour >= 18 && currentHour <= 22
     }
 
@@ -207,6 +187,29 @@ export function DialogAvailability({ sub }:DialogAvailabilityParams) {
         return Number(date.split('T')[0].split('-')[2]) === currentDay
       })
 
+      const arrayHours = Laboratory?.reservations
+        .filter((lab) => lab.status === 'approved' || lab.status === 'pending')
+        .filter((lab) => Number(lab.beginHour.split('T')[0].split('-')[2]) === currentDay)
+        .map((lab) => {
+          return {
+            labBeginHour: lab.beginHour,
+            labEndHour: lab.endHour,
+          }
+        })
+
+      const arrayHoursNumber = arrayHours?.filter((date) => {
+        return {
+          labBeginHourNumber: Number(date.labBeginHour.split('T')[0].split('-')[2]) === currentDay,
+          labEndHourNumber: Number(date.labBeginHour.split('T')[0].split('-')[2]) === currentDay,
+        }
+      })
+
+      console.log(arrayHoursNumber?.map((objectReserv) => {
+        return {
+          labBeginHour: Number(objectReserv.labBeginHour.split('T')[1].split(':')[0]),
+          labEndHour: Number(objectReserv.labEndHour.split('T')[1].split(':')[0] + 2),
+        }
+      }))
       const currentTime = new Date(time)
       const currentHour = currentTime.getHours()
 
@@ -215,10 +218,12 @@ export function DialogAvailability({ sub }:DialogAvailabilityParams) {
             ? Laboratory.startOfBlockade + 1
             : 19)) && (currentHour <= (Laboratory?.endOfBlockade !== undefined
             ? Laboratory.endOfBlockade
-            : 23)) && arrayEndHoursSameDay?.every((date) => {
-            const hourFromDate = Number(date.split('T')[1].split(':')[0])
-            return hourFromDate !== currentHour
-          })
+            : 23)) && (arrayHoursNumber !== undefined
+            ? arrayHoursNumber?.every((objectReserv) => {
+              return currentHour <= Number(objectReserv.labBeginHour.split('T')[1].split(':')[0]) ||
+                currentHour > Number(objectReserv.labEndHour.split('T')[1].split(':')[0])
+            })
+            : true)
         : currentHour >= 19 && currentHour <= 23
     }
     return (
@@ -267,7 +272,9 @@ export function DialogAvailability({ sub }:DialogAvailabilityParams) {
                   Data
                 </label>
                 <DatePicker
-                  selected={startDate} className="flex h-10 w-full items-center justify-between rounded-md border border-input bg-background px-3 py-2 text-sm ring-offset-background placeholder:text-muted-foreground focus:outline-none focus:ring-2 focus:ring-ring focus:ring-offset-2 disabled:cursor-not-allowed disabled:opacity-50 [&>span]:line-clamp-1" onChange={(date) => {
+                  selected={startDate} className="flex h-10 w-full items-center justify-between rounded-md border border-input bg-background px-3 py-2 text-sm ring-offset-background
+                  placeholder:text-muted-foreground focus:outline-none focus:ring-2 focus:ring-ring focus:ring-offset-2
+                  disabled:cursor-not-allowed disabled:opacity-50 [&>span]:line-clamp-1" onChange={(date) => {
                     if (date) {
                       setStartDate(date)
                       setBeginHourValue(date)
@@ -347,12 +354,14 @@ export function DialogAvailability({ sub }:DialogAvailabilityParams) {
                 />
               </div>
             </main>
-            <Button
-              className="w-full cursor-pointer"
-              disabled={isSubmitting}
-              variant="fagammon"
-            >Finalizar reserva
-            </Button>
+            <DialogClose>
+              <Button
+                className="w-full cursor-pointer"
+                disabled={isSubmitting}
+                variant="fagammon"
+              >Finalizar reserva
+              </Button>
+            </DialogClose>
           </form>
         </DialogContent>
       </>

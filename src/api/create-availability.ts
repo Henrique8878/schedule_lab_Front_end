@@ -23,6 +23,7 @@ interface CreateAvailabilityReturn {
     description: string;
     startOfBlockade: number
     endOfBlockade: number
+    operatingDays: string
     userId: string;
   }
 }

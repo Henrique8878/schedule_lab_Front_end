@@ -124,7 +124,7 @@ export function DialogUpdate() {
         </div>
 
         <div className="flex gap-5 ">
-          <Label>Categoria</Label>
+          <Label>Selecione</Label>
           <Controller
             name="category"
             control={control}

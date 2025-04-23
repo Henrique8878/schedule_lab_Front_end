@@ -116,6 +116,7 @@ export function DialogRegisterUser() {
               type="text" className="border p-1 rounded-md outline-none"
               {...register('email')}
               autoComplete="off"
+
             />
             <span className="min-h-6">
               <span className="text-xs text-red-500">{!isValidating
@@ -134,6 +135,7 @@ export function DialogRegisterUser() {
               type="password" className="border p-1 rounded-md outline-none"
               {...register('password_hash')}
               autoComplete="off"
+
             />
             <span className="min-h-6">
               <span className="text-xs text-red-500">{!isValidating
@@ -152,7 +154,7 @@ export function DialogRegisterUser() {
             <Controller
               name="category" control={control} render={({ field }) => (
                 <select className="flex h-10 w-full items-center justify-between rounded-md border border-input bg-background px-3 py-2 text-sm ring-offset-background placeholder:text-muted-foreground focus:outline-none focus:ring-2 focus:ring-ring focus:ring-offset-2 disabled:cursor-not-allowed disabled:opacity-50 [&>span]:line-clamp-1" {...field}>
-                  <option value="">Admnistrador ou Usuário</option>
+                  <option value="">Selecione</option>
                   <option value="admin">Admnistrador</option>
                   <option value="user">Usuário</option>
                 </select>

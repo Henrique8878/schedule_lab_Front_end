@@ -18,6 +18,7 @@ export interface getManyUsersReturn {
       description: string
       startOfBlockade: number
       endOfBlockade: number
+      operatingDays: string
       userId: string
     }[]
   }[],

@@ -58,7 +58,7 @@ export function AccountMenu() {
             <DialogTrigger>
               <DropdownMenuItem className="flex items-center justify-start gap-2 cursor-pointer">
                 <Building />
-                <span>Perfil do laboratório</span>
+                <span>Perfil do usuário</span>
               </DropdownMenuItem>
 
             </DialogTrigger>

@@ -12,6 +12,7 @@ interface DeleteLabReturning {
   description: string
   startOfBlockade: number
   endOfBlockade: number
+  operatingDays: string
   quantityReservations: number
   userid: string,
   reservations:{

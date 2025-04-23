@@ -60,7 +60,9 @@ export function TableAvailability({ isPublic }:TableAvailabilityParams) {
   })
 
   const totalPage = getManyAvailabilities?.totalCount !== undefined
-    ? Math.ceil(getManyAvailabilities?.totalCount / 10)
+    ? (getManyAvailabilities.totalCount === 0
+        ? 1
+        : Math.ceil(getManyAvailabilities?.totalCount / 10))
     : 1
 
   const queryClient = useQueryClient()
@@ -87,7 +89,7 @@ export function TableAvailability({ isPublic }:TableAvailabilityParams) {
         })
       }
 
-      toast.success('Reserva atualizada com sucesso!')
+      toast.error('Reserva cancelada !')
     },
   })
 
@@ -99,8 +101,8 @@ export function TableAvailability({ isPublic }:TableAvailabilityParams) {
     queryKey: ['GetUserProfileKey'],
     queryFn: async () => await GetUserProfileFn({ id: payload.sub }),
   })
-
-  console.log(userProfileData?.category)
+  console.log(page, totalPage)
+  console.log(location.pathname, location.search)
   return (
     <>
       <section className="flex flex-col border border-muted">
@@ -153,7 +155,7 @@ export function TableAvailability({ isPublic }:TableAvailabilityParams) {
                 {isPublic === false && (
                   <>
                     <TableCell className="flex gap-4">
-                      <Button
+                      {/* <Button
                         variant="outline" className="cursor-pointer"
                         onClick={() => {
                           updateAvailability({ id: reserv.id, status: 'approved' })
@@ -170,9 +172,9 @@ export function TableAvailability({ isPublic }:TableAvailabilityParams) {
                               : `?updateStatus=${new Date()}`)
                           }
                         }}
-                        disabled={reserv.status === 'approved'}
+                        disabled={reserv.status === 'approved' || reserv.status === 'rejected'}
                       >Aprovar
-                      </Button>
+                      </Button> */}
                       <Button
                         variant="outline" className="cursor-pointer"
                         onClick={() => {
@@ -181,13 +183,13 @@ export function TableAvailability({ isPublic }:TableAvailabilityParams) {
 
                           if (update) {
                             setSearchParams((state) => {
-                              state.set('updateStatus', new Date().toString())
+                              state.set('updateStatus', new Date().getMilliseconds().toString())
                               return state
                             })
                           } else {
-                            navigate(location.pathname + location.search
-                              ? location.search + `?updateStatus=${new Date()}`
-                              : `?updateStatus=${new Date()}`)
+                            navigate(location.search
+                              ? `${location.pathname}${location.search}&updateStatus=${new Date().getMilliseconds()}`
+                              : `${location.pathname}?updateStatus=${new Date().getMilliseconds()}`)
                           }
                         }}
                         disabled={reserv.status === 'rejected'}
@@ -228,7 +230,9 @@ export function TableAvailability({ isPublic }:TableAvailabilityParams) {
           </Button>
           <Button
             variant="outline" className="cursor-pointer" onClick={() =>
-              handlePage((Number(page) - 1).toString())} disabled={Number(page) === 1}
+              handlePage((Number.isNaN(page)
+                ? 1
+                : Number(page) - 1).toString())} disabled={Number(page) === 1}
           >
             <ChevronLeft />
             <span className="sr-only">Página anterior</span>
