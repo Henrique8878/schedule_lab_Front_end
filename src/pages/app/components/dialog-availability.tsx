@@ -122,8 +122,34 @@ export function DialogAvailability({ sub }:DialogAvailabilityParams) {
     }
 
     const isWeekday = (date:Date) => {
+      const arrayAllDaysOfWeek = [0, 1, 2, 3, 4, 5, 6]
       const day = dayjs(date).day()
-      return day !== 0 && day !== 6
+      const arrayFromDays = getManyLaboratoriesFm?.laboratories.find((lab) => {
+        return lab.id === currentLaboratoryId
+      })
+
+      const stringDays = arrayFromDays !== undefined && arrayFromDays.operatingDays
+
+      const arrayStringDays = String(stringDays).split(':')
+      const deleteSpaceStringDays = arrayStringDays.filter(day => day !== '')
+      const keyFromDay:Record<string, number> = {
+        domingo: 0,
+        segunda: 1,
+        terça: 2,
+        quarta: 3,
+        quinta: 4,
+        sexta: 5,
+        sábado: 6,
+      }
+
+      const numberOfDays = deleteSpaceStringDays.map((day) => {
+        return keyFromDay[day]
+      })
+
+      const numbersNotInTheArray = arrayAllDaysOfWeek.filter(a => !numberOfDays.includes(a))
+      return numbersNotInTheArray.every((dayArray) => {
+        return day !== dayArray
+      })
     }
 
     const filterPassedBegin = (time:Date):boolean => {

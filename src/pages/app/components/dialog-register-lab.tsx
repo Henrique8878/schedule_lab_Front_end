@@ -14,6 +14,7 @@ import { RegisterLabFn } from '@/api/register-lab'
 import { Button } from '@/components/ui/button'
 import { Checkbox } from '@/components/ui/checkbox'
 import {
+  DialogClose,
   DialogContent,
   DialogHeader,
   DialogTitle,
@@ -104,26 +105,25 @@ export function DialogRegisterLab() {
 
   function StringDaysOfWeek() {
     const daysOfWeek = `${stateSegunda !== false
-? 'segunda,'
+? 'segunda:'
 : ''}${stateTerca !== false
-? 'terça,'
+? 'terça:'
 : ''}${stateQuarta !== false
-? 'quarta,'
-: ''}
-    ${stateQuinta !== false
-? 'quinta,'
+? 'quarta:'
+: ''}${stateQuinta !== false
+? 'quinta:'
 : ''}${stateSexta !== false
-? 'sexta,'
+? 'sexta:'
 : ''}${stateSabado !== false
-? 'sábado,'
+? 'sábado:'
 : ''}${stateDomingo !== false
 ? 'domingo'
 : ''}`
-    return daysOfWeek.trim()
+
+    return daysOfWeek
   }
 
   async function handleRegister({ name, localization, capacity, description, startOfBlockade, endOfBlockade }:typeRegisterLaboratorySchema) {
-    console.log('chamou')
     try {
       if (!StringDaysOfWeek()) {
         throw new Error('Marque algum dia da semana para cadastrar o laboratoŕio')
@@ -312,13 +312,15 @@ export function DialogRegisterLab() {
               </div>
             </section>
           </main>
-          <Button
-            type="submit"
-            className="w-full cursor-pointer text-md"
-            disabled={isSubmitting}
-            variant="fagammon"
-          >Cadastrar
-          </Button>
+          <DialogClose>
+            <Button
+              type="submit"
+              className="w-full cursor-pointer text-md"
+              disabled={isSubmitting}
+              variant="fagammon"
+            >Cadastrar
+            </Button>
+          </DialogClose>
 
         </form>
       </DialogContent>

@@ -118,7 +118,7 @@ export function TableAvailability({ isPublic }:TableAvailabilityParams) {
 
               {isPublic === false && (
                 <>
-                  <TableHead className="w-[8rem]">Aprovar/Rejeitar</TableHead>
+                  <TableHead className="w-[8rem]">Rejeitar</TableHead>
                   <TableHead className="w-[8rem] text-center">Ação</TableHead>
 
                 </>
@@ -139,6 +139,10 @@ export function TableAvailability({ isPublic }:TableAvailabilityParams) {
                     <DialogLabDetails
                       laboratoryName={reserv.laboratory.name} laboratoryCapacity={reserv.laboratory.capacity}
                       laboratoryDescription={reserv.laboratory.description} laboratoryLocalization={reserv.laboratory.localization}
+                      laboratoryDaysOperating={reserv.laboratory.operatingDays}
+                      laboratoryStartOfBlockade={reserv.laboratory.startOfBlockade}
+                      laboratoryEndOfBlockade={reserv.laboratory.endOfBlockade}
+
                     />
                   </Dialog>
                   <span>{reserv.laboratory.name}</span>

@@ -87,6 +87,8 @@ export function TableLab() {
                       nameLab={lab.name} capacityLab={lab.capacity}
                       descriptionLab={lab.description} localizationLab={lab.localization}
                       labId={lab.id}
+                      startOfBlockade={lab.startOfBlockade} endOfBlockade={lab.endOfBlockade}
+                      operatingDays={lab.operatingDays}
                     />
                   </Dialog>
                   <AlertDialog>

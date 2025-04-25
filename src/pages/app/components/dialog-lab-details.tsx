@@ -12,9 +12,15 @@ interface DialogLabDetailsParams {
   laboratoryCapacity: number
   laboratoryDescription: string
   laboratoryLocalization: string
+  laboratoryDaysOperating: string
+  laboratoryStartOfBlockade: number
+  laboratoryEndOfBlockade: number
 }
 
-export function DialogLabDetails({ laboratoryName, laboratoryCapacity, laboratoryDescription, laboratoryLocalization }:DialogLabDetailsParams) {
+export function DialogLabDetails({
+  laboratoryName, laboratoryCapacity, laboratoryDescription, laboratoryLocalization,
+  laboratoryDaysOperating, laboratoryStartOfBlockade, laboratoryEndOfBlockade,
+}:DialogLabDetailsParams) {
   return (
     <>
       <DialogContent>
@@ -24,7 +30,14 @@ export function DialogLabDetails({ laboratoryName, laboratoryCapacity, laborator
             Aqui está uma breve descrição do {laboratoryName}
           </DialogDescription>
         </DialogHeader>
-        <CardLabDetails labCapacity={laboratoryCapacity} labDescription={laboratoryDescription} labLocalization={laboratoryLocalization} />
+        <CardLabDetails
+          labCapacity={laboratoryCapacity}
+          labDescription={laboratoryDescription}
+          labLocalization={laboratoryLocalization}
+          labDaysOperating={laboratoryDaysOperating}
+          labStartOfBlockade={laboratoryStartOfBlockade}
+          labEndOfBlockade={laboratoryEndOfBlockade}
+        />
       </DialogContent>
     </>
   )
