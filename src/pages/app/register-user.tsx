@@ -36,7 +36,7 @@ export function RegisterUser() {
 
   return (
     <>
-      <Helmet title="Registrar-adm/user" />
+      <Helmet title="Registrar-adm/usuário" />
       <section className="flex flex-col p-10">
         <span className="text-muted-foreground text-3xl">Membros</span>
         <div className="flex justify-center items-center h-screen px-20">

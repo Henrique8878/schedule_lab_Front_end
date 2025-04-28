@@ -30,6 +30,7 @@ export interface GetUserProfileFnReturn {
     beginHour: string
     endHour: string
     status: string
+    visibility: string
     laboratoryId: string
     userId: string
   }[]

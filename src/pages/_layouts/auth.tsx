@@ -8,6 +8,7 @@ export function AuthLayout() {
         <div className="flex">
           <img src={LogoInteiraFagammon} className="w-72" />
         </div>
+
         <span className="text-muted-foreground">
           Painel do parceiro &copy; - {new Date().getFullYear()}
         </span>

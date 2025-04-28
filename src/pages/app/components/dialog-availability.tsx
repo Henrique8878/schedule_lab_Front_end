@@ -36,6 +36,7 @@ export function DialogAvailability({ sub }:DialogAvailabilityParams) {
 
   const registerAvailabilitySchema = z.object({
     laboratoryId: z.string(),
+    visibility: z.enum(['private', 'public']),
   })
 
     type typeRegisterAvailabilitySchema =
@@ -72,9 +73,14 @@ export function DialogAvailability({ sub }:DialogAvailabilityParams) {
       queryFn: async () => await GetUserProfileFn({ id: payload.sub }),
     })
 
+    const name = searchParams.get('name') || undefined
+    const beginDate = searchParams.get('beginDate') || undefined
+    const status = searchParams.get('status') || undefined
+    const visibility = searchParams.get('visibility') || undefined
+
     const { refetch } = useQuery({
-      queryKey: ['getManyAvailabilitiesKey', page],
-      queryFn: () => GetManyAvailabilitiesFn({ page }),
+      queryKey: ['getManyAvailabilitiesKey', page, name, beginDate, status, visibility],
+      queryFn: () => GetManyAvailabilitiesFn({ page, name, beginDate, status, visibility }),
     })
 
     const { mutateAsync: createAvailabilityFn } = useMutation({
@@ -96,7 +102,7 @@ export function DialogAvailability({ sub }:DialogAvailabilityParams) {
       },
     })
 
-    async function handleRegister({ laboratoryId }
+    async function handleRegister({ laboratoryId, visibility }
     :typeRegisterAvailabilitySchema) {
       try {
         await createAvailabilityFn({
@@ -105,6 +111,7 @@ export function DialogAvailability({ sub }:DialogAvailabilityParams) {
           beginHour: `${dayjs(beginHourValue.toString()).format('YYYY-MM-DDTHH:mm:ss.000')}Z`,
           endHour: `${dayjs(endHourValue.toString()).format('YYYY-MM-DDTHH:mm:ss.000')}Z`,
           userId: sub,
+          visibility,
         })
 
         await (userProfileData?.category === 'admin'
@@ -378,7 +385,25 @@ export function DialogAvailability({ sub }:DialogAvailabilityParams) {
                   filterTime={filterPassesTimeEnd}
                   filterDate={isWeekday}
                 />
+
               </div>
+              <Controller
+                name="visibility" control={control} render={({ field }) => (
+
+                  <select
+                    className="flex h-10 w-full items-center justify-between rounded-md border border-input bg-background
+                       px-3 py-2 text-sm ring-offset-background placeholder:text-muted-foreground
+                       focus:outline-none focus:ring-2 focus:ring-ring focus:ring-offset-2
+                       disabled:cursor-not-allowed disabled:opacity-50 [&>span]:line-clamp-1" {...field} onChange={(e) => {
+                      field.onChange(e)
+                    }}
+                  >
+                    <option value="">Escolha a visibilidade</option>
+                    <option value="private">Privado</option>
+                    <option value="public">Público</option>
+                  </select>
+                )}
+              />
             </main>
             <DialogClose>
               <Button

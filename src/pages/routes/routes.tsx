@@ -3,6 +3,7 @@ import { createBrowserRouter, Navigate } from 'react-router-dom'
 import { AppLayout } from '../_layouts/app'
 import { AppUserLayout } from '../_layouts/app-user-layout'
 import { AuthLayout } from '../_layouts/auth'
+import { TableAvailabilitySignIn } from '../app/components/table-availability-sign-in'
 import { DashBoard } from '../app/dashboard'
 import { RegisterLab } from '../app/register-lab'
 import { RegisterUser } from '../app/register-user'
@@ -22,6 +23,10 @@ export const router = createBrowserRouter([
       {
         path: 'sign-in',
         element: <SignIn />,
+      },
+      {
+        path: 'allScheduling',
+        element: <TableAvailabilitySignIn />,
       },
       {
         path: 'verify-email',

@@ -19,7 +19,7 @@ export function RegisterLab() {
 
   return (
     <>
-      <Helmet title="Registrar-adm/user" />
+      <Helmet title="Registrar-laboratório" />
       <section className="flex flex-col p-10">
         <span className="text-muted-foreground text-3xl">Laboratórios</span>
         <div className="flex justify-center items-center h-screen px-20">

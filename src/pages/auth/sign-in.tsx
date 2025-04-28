@@ -110,6 +110,7 @@ export function SignIn() {
               variant="fagammon"
             >Fazer login
             </Button>
+            <Button type="button" className="w-full cursor-pointer" variant="outline" onClick={() => navigate('/allScheduling')}>Todos os agendamentos</Button>
 
           </form>
           <p className="text-center">

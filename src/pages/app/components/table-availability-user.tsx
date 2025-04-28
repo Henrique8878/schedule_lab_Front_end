@@ -1,11 +1,9 @@
 import { useQuery } from '@tanstack/react-query'
-import { formatDistanceToNow } from 'date-fns'
-import { ptBR } from 'date-fns/locale'
 import dayjs from 'dayjs'
 import { jwtDecode } from 'jwt-decode'
-import { Search, Trash } from 'lucide-react'
+import { FileKey, Search, Trash, Users } from 'lucide-react'
 import { parseCookies } from 'nookies'
-import { useLocation, useSearchParams } from 'react-router-dom'
+import { useSearchParams } from 'react-router-dom'
 
 import { GetManyLaboratoriesFn } from '@/api/get-many-laboratories'
 import { GetUserProfileFn } from '@/api/get-user-profile'
@@ -37,9 +35,6 @@ export function TableAvailabilityUser() {
   const token = cookie['app.schedule.lab']
   const payload:ReturningFunctionCaptureUser = jwtDecode(token)
 
-  const location = useLocation()
-  console.log(location.pathname)
-
   // const { isAdmin } = useContext(contextApp)
   // const [searchParams, setSearchParams] = useSearchParams()
 
@@ -51,15 +46,14 @@ export function TableAvailabilityUser() {
   //     return state
   //   })
   // }
+  const [searchParams] = useSearchParams()
+
+  const page = searchParams.get('page') || '1'
 
   const { data: userProfileData } = useQuery({
     queryKey: ['GetUserProfileKey'],
     queryFn: async () => await GetUserProfileFn({ id: payload.sub }),
   })
-
-  const [searchParams] = useSearchParams()
-
-  const page = searchParams.get('page') || '1'
 
   const { data: getManyLaboratories } = useQuery({
     queryKey: ['getManyLaboratoriesKey', page],
@@ -99,11 +93,12 @@ export function TableAvailabilityUser() {
           <TableHeader>
             <TableRow>
               <TableHead className="w-[12rem]">Laboratório</TableHead>
-              <TableHead className="w-[6rem]">Criado há</TableHead>
               <TableHead className="w-[8rem]">Data</TableHead>
               <TableHead className="w-[8rem]">Hora Início</TableHead>
               <TableHead className="w-[8rem]">Até</TableHead>
               <TableHead className="w-[10rem]">Status</TableHead>
+              <TableHead className="w-[10rem]">Visibilidade</TableHead>
+              <TableHead className="w-[10rem]">Inscrição</TableHead>
 
               <TableHead className="w-[8rem] text-center">Ação</TableHead>
 
@@ -124,6 +119,9 @@ export function TableAvailabilityUser() {
                         laboratoryName={lab.name}
                         laboratoryCapacity={lab.capacity}
                         laboratoryDescription={lab.description} laboratoryLocalization={lab.localization}
+                        laboratoryDaysOperating={lab.operatingDays}
+                        laboratoryStartOfBlockade={lab.startOfBlockade}
+                        laboratoryEndOfBlockade={lab.endOfBlockade}
                         key={lab.id}
                                                        />
                     ))}
@@ -135,13 +133,20 @@ export function TableAvailabilityUser() {
                   ))}
 
                 </TableCell>
-                <TableCell className="font-medium">{formatDistanceToNow(avail.created_at, { locale: ptBR, addSuffix: true })}</TableCell>
                 <TableCell>{dayjs(avail.date).add(1, 'day').format('DD/MM/YYYY')}</TableCell>
                 <TableCell>{dayjs(avail.beginHour).add(3, 'hours').format('HH:mm')}
                 </TableCell>
                 <TableCell>{dayjs(avail.endHour).add(3, 'hours').format('HH:mm')}
                 </TableCell>
                 <TableCell>{ManageStatus(avail.status as typeStatus)}
+                </TableCell>
+                <TableCell>{avail.visibility === 'public'
+                  ? <div className="flex gap-2"><Users /><span>Público</span></div>
+                  : <div className="flex gap-2"><FileKey /><span>Privado</span></div>}
+                </TableCell>
+                <TableCell>{avail.visibility === 'public'
+                  ? <Button className="cursor-pointer" variant="default" disabled={avail.status === 'rejected'}>Inscrever-se</Button>
+                  : ''}
                 </TableCell>
 
                 <TableCell className="text-center">

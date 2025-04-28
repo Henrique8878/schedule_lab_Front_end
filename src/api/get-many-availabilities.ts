@@ -8,6 +8,7 @@ export interface GetManyAvailabilitiesFnReturn {
     beginHour: string
     endHour: string
     status: string
+    visibility: string
     laboratoryId: string
     userId: string
     laboratory:{
@@ -20,7 +21,14 @@ export interface GetManyAvailabilitiesFnReturn {
       endOfBlockade: number
       operatingDays: string
       userId: string
-    }
+    },
+    manySignUpEvent:{
+      id: string
+      name: string
+      email: string
+      telephone: string
+      availabilityId: string
+    }[]
   }[],
   availabilityInMonth: number,
   totalCount: number
@@ -29,9 +37,20 @@ export interface GetManyAvailabilitiesFnReturn {
 
 interface GetManyAvailabilitiesProps {
   page: string
+  name: string | undefined | null
+  beginDate: string | undefined | null
+  status: string | undefined | null
+  visibility: string | undefined | null
 }
 
-export async function GetManyAvailabilitiesFn({ page }:GetManyAvailabilitiesProps) {
-  const response = await api.get<GetManyAvailabilitiesFnReturn>(`/availability/get-many?page=${page}`)
+export async function GetManyAvailabilitiesFn({ page, name, beginDate, status, visibility }:GetManyAvailabilitiesProps) {
+  const response = await api.get<GetManyAvailabilitiesFnReturn>(`/availability/get-many?page=${page}`, {
+    params: {
+      name,
+      beginDate,
+      status,
+      visibility,
+    },
+  })
   return response.data
 }

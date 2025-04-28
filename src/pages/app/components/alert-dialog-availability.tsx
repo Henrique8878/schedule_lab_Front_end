@@ -40,9 +40,14 @@ export function AlertDialogAvailability({ id, category }:AlertDialogProps) {
     queryFn: async () => await GetUserProfileFn({ id: payload.sub }),
   })
 
+  const name = searchParams.get('name') || undefined
+  const beginDate = searchParams.get('beginDate') || undefined
+  const status = searchParams.get('status') || undefined
+  const visibility = searchParams.get('visibility') || undefined
+
   const { refetch } = useQuery({
-    queryKey: ['getManyAvailabilitiesKey', page],
-    queryFn: () => GetManyAvailabilitiesFn({ page }),
+    queryKey: ['getManyAvailabilitiesKey', page, name, beginDate, status, visibility],
+    queryFn: () => GetManyAvailabilitiesFn({ page, name, beginDate, status, visibility }),
   })
 
   const navigate = useNavigate()

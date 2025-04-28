@@ -11,6 +11,7 @@ export interface GetManyLaboratoriesReturn {
     startOfBlockade: number
     endOfBlockade: number
     operatingDays: string
+
     quantityReservations: number
     userid: string,
     reservations:{
@@ -20,6 +21,7 @@ export interface GetManyLaboratoriesReturn {
       beginHour: string
       endHour: string
       status: string
+      visibility: string
       laboratoryId: string
     }[]
   }[],

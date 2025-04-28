@@ -3,7 +3,7 @@ import { formatDistanceToNow } from 'date-fns'
 import { ptBR } from 'date-fns/locale'
 import dayjs from 'dayjs'
 import { jwtDecode } from 'jwt-decode'
-import { ChevronLeft, ChevronRight, ChevronsLeft, ChevronsRight, Search, Trash } from 'lucide-react'
+import { ChevronLeft, ChevronRight, ChevronsLeft, ChevronsRight, FileKey, Search, Trash, Users } from 'lucide-react'
 import { parseCookies } from 'nookies'
 import { useLocation, useNavigate, useSearchParams } from 'react-router-dom'
 import { toast } from 'sonner'
@@ -28,15 +28,18 @@ import {
   TableHeader,
   TableRow,
 } from '@/components/ui/table'
+import { DialogRegisterSignUpEvent } from '@/pages/app/components/dialog-register-sign-up-event'
 
 import { ReturningFunctionCaptureUser } from '../register-lab'
 import { ManageStatus, typeStatus } from '../util/manageStatus'
 import { AlertDialogAvailability } from './alert-dialog-availability'
 import { DialogLabDetails } from './dialog-lab-details'
+import { ShowSignUpEvent } from './show-sign-up-event'
 
 interface TableAvailabilityParams {
   token: string
   isPublic: boolean
+
 }
 
 export function TableAvailability({ isPublic }:TableAvailabilityParams) {
@@ -54,9 +57,14 @@ export function TableAvailability({ isPublic }:TableAvailabilityParams) {
     })
   }
 
+  const name = searchParams.get('name') || undefined
+  const beginDate = searchParams.get('beginDate') || undefined
+  const status = searchParams.get('status') || undefined
+  const visibility = searchParams.get('visibility') || undefined
+
   const { data: getManyAvailabilities } = useQuery({
-    queryKey: ['getManyAvailabilitiesKey', page],
-    queryFn: () => GetManyAvailabilitiesFn({ page }),
+    queryKey: ['getManyAvailabilitiesKey', page, name, beginDate, status, visibility],
+    queryFn: () => GetManyAvailabilitiesFn({ page, name, beginDate, status, visibility }),
   })
 
   const totalPage = getManyAvailabilities?.totalCount !== undefined
@@ -70,7 +78,7 @@ export function TableAvailability({ isPublic }:TableAvailabilityParams) {
   const { mutateAsync: updateAvailability } = useMutation({
     mutationFn: UpdateAvailabilityFn,
     onSuccess(data) {
-      const cached = queryClient.getQueryData(['getManyAvailabilitiesKey', page])
+      const cached = queryClient.getQueryData(['getManyAvailabilitiesKey', page, name, beginDate, status, visibility])
 
       if (cached) {
         const cachedAvailability:GetManyAvailabilitiesFnReturn = cached as GetManyAvailabilitiesFnReturn
@@ -83,7 +91,7 @@ export function TableAvailability({ isPublic }:TableAvailabilityParams) {
           }
           return reserv
         })
-        queryClient.setQueryData(['getManyAvailabilitiesKey', page], {
+        queryClient.setQueryData(['getManyAvailabilitiesKey', page, name, beginDate, status, visibility], {
           ...cachedAvailability,
           availability: cachedAvailabilityUpdated,
         })
@@ -101,31 +109,40 @@ export function TableAvailability({ isPublic }:TableAvailabilityParams) {
     queryKey: ['GetUserProfileKey'],
     queryFn: async () => await GetUserProfileFn({ id: payload.sub }),
   })
-  console.log(page, totalPage)
-  console.log(location.pathname, location.search)
+
   return (
     <>
       <section className="flex flex-col border border-muted">
+
         <Table>
           <TableHeader>
             <TableRow>
-              <TableHead className="w-[12rem]">Laboratório</TableHead>
-              <TableHead className="w-[6rem]">Criado há</TableHead>
-              <TableHead className="w-[8rem]">Data</TableHead>
-              <TableHead className="w-[8rem]">Hora Início</TableHead>
-              <TableHead className="w-[8rem]">Até</TableHead>
-              <TableHead className="w-[10rem]">Status</TableHead>
+              <TableHead className="w-[10rem]">Laboratório</TableHead>
+              {isPublic === false && (
+
+                <TableHead className="w-[8rem]">Criado há</TableHead>
+              )}
+              <TableHead className="w-[10rem]">Data</TableHead>
+              <TableHead className="w-[6rem]">Hora Início</TableHead>
+              <TableHead className="w-[6rem]">Até</TableHead>
+              <TableHead className="w-[8rem]">Status</TableHead>
+              <TableHead className="w-[8rem]">Visibilidade</TableHead>
+              <TableHead className="w-[10rem]">Inscrição</TableHead>
+              {isPublic === false && (
+                <TableHead className="w-[10rem]">Todos os inscritos</TableHead>
+              )}
 
               {isPublic === false && (
                 <>
-                  <TableHead className="w-[8rem]">Rejeitar</TableHead>
-                  <TableHead className="w-[8rem] text-center">Ação</TableHead>
+                  <TableHead className="w-[10rem]">Rejeitar</TableHead>
+                  <TableHead className="w-[5rem] text-center">Ação</TableHead>
 
                 </>
               )}
 
             </TableRow>
           </TableHeader>
+
           <TableBody>
             {getManyAvailabilities?.availability.map((reserv) => (
               <TableRow key={reserv.id}>
@@ -147,7 +164,13 @@ export function TableAvailability({ isPublic }:TableAvailabilityParams) {
                   </Dialog>
                   <span>{reserv.laboratory.name}</span>
                 </TableCell>
-                <TableCell className="font-medium">{formatDistanceToNow(reserv.created_at, { locale: ptBR, addSuffix: true })}</TableCell>
+                {isPublic === false && (
+                  <TableCell className="font-medium">
+                    {reserv.created_at !== undefined
+                      ? formatDistanceToNow(new Date(reserv.created_at), { locale: ptBR, addSuffix: true })
+                      : ''}
+                  </TableCell>
+                )}
                 <TableCell>{dayjs(reserv.date).add(1, 'day').format('DD/MM/YYYY')}</TableCell>
                 <TableCell>{dayjs(reserv.beginHour).add(3, 'hours').format('HH:mm')}
                 </TableCell>
@@ -155,30 +178,48 @@ export function TableAvailability({ isPublic }:TableAvailabilityParams) {
                 </TableCell>
                 <TableCell>{ManageStatus(reserv.status as typeStatus)}
                 </TableCell>
+                <TableCell>{reserv.visibility === 'private'
+                  ? <div className="flex gap-2"><FileKey /><span>Privado</span></div>
+                  : <div className="flex gap-2"><Users /><span>Público</span></div>}
+                </TableCell>
+
+                <TableCell>
+                  {reserv.visibility === 'public'
+                    ? (
+                      <Dialog>
+                        <DialogTrigger asChild>
+                          <Button
+                            className="cursor-pointer"
+                            variant="default"
+                            disabled={reserv.status === 'rejected'}
+                          >
+                            Inscrever-se
+                          </Button>
+                        </DialogTrigger>
+                        <DialogRegisterSignUpEvent availabilityId={reserv.id} />
+                      </Dialog>
+                      )
+                    : (
+                        ''
+                      )}
+                </TableCell>
+                {isPublic === false && (
+                  <TableCell>
+                    <Dialog>
+                      <DialogTrigger>
+                        <Button className="cursor-pointer" variant="outline" disabled={reserv.status === 'rejected'}>Mostrar inscritos</Button>
+                      </DialogTrigger>
+                      {reserv.status !== 'rejected' &&
+                        <ShowSignUpEvent manySignUpEvent={reserv.manySignUpEvent} />}
+
+                    </Dialog>
+                  </TableCell>
+                )}
 
                 {isPublic === false && (
                   <>
                     <TableCell className="flex gap-4">
-                      {/* <Button
-                        variant="outline" className="cursor-pointer"
-                        onClick={() => {
-                          updateAvailability({ id: reserv.id, status: 'approved' })
-                          const update = searchParams.get('updateStatus')
 
-                          if (update) {
-                            setSearchParams((state) => {
-                              state.set('updateStatus', new Date().toString())
-                              return state
-                            })
-                          } else {
-                            navigate(location.pathname + location.search
-                              ? location.search + `?updateStatus=${new Date()}`
-                              : `?updateStatus=${new Date()}`)
-                          }
-                        }}
-                        disabled={reserv.status === 'approved' || reserv.status === 'rejected'}
-                      >Aprovar
-                      </Button> */}
                       <Button
                         variant="outline" className="cursor-pointer"
                         onClick={() => {

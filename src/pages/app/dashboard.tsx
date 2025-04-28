@@ -19,6 +19,12 @@ export function DashBoard() {
   const { setIsAdmin } = useContext(contextApp)
 
   const [searchParams] = useSearchParams()
+
+  const name = searchParams.get('name') || undefined
+  const beginDate = searchParams.get('beginDate') || undefined
+  const status = searchParams.get('status') || undefined
+  const visibility = searchParams.get('visibility') || undefined
+
   const page = searchParams.get('page') || '1'
   const { data: getManyLaboratoriesFm } = useQuery({
     queryKey: ['getManyLaboratoriesKey'],
@@ -26,8 +32,8 @@ export function DashBoard() {
   })
 
   const { data: getManyAvailabilitiesFn } = useQuery({
-    queryKey: ['getManyAvailabilitiesKey'],
-    queryFn: () => GetManyAvailabilitiesFn({ page }),
+    queryKey: ['getManyAvailabilitiesKey', page, name, beginDate, status, visibility],
+    queryFn: () => GetManyAvailabilitiesFn({ page, name, beginDate, status, visibility }),
   })
 
   const { data: getManyUsersFn } = useQuery({
